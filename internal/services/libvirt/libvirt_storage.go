@@ -432,7 +432,7 @@ func (s *Service) StorageAttach(vmId int, sType string, dataset string, emulatio
 			"-s %d:0,%s,%s/%s.img",
 			index,
 			emulation,
-			filepath.Join(targetDataset.Mountpoint, strconv.Itoa(vmId)),
+			targetDataset.Mountpoint,
 			name,
 		)
 
