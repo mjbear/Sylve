@@ -15,7 +15,7 @@ import (
 type ManualSwitch struct {
 	ID     uint   `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name   string `json:"name" gorm:"unique;not null"`
-	Bridge string `gorm:"unique;not null"`
+	Bridge string `json:"bridge" gorm:"unique;not null"`
 
 	CreatedAt time.Time `json:"createdAt" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updatedAt" gorm:"autoUpdateTime"`
@@ -24,7 +24,7 @@ type ManualSwitch struct {
 type StandardSwitch struct {
 	ID         uint   `json:"id" gorm:"primaryKey;autoIncrement"`
 	Name       string `json:"name" gorm:"unique;not null"`
-	BridgeName string `gorm:"unique;not null"`
+	BridgeName string `json:"bridgeName" gorm:"unique;not null"`
 	MTU        int    `json:"mtu" gorm:"default:1500"`
 	VLAN       int    `json:"vlan" gorm:"default:0"`
 	Address    string `json:"address"`

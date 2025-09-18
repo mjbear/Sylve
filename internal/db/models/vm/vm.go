@@ -9,9 +9,11 @@
 package vmModels
 
 import (
+	"fmt"
 	"time"
 
 	networkModels "github.com/alchemillahq/sylve/internal/db/models/network"
+	"gorm.io/gorm"
 )
 
 type Storage struct {
@@ -32,12 +34,34 @@ type Network struct {
 	MacID      *uint                 `json:"macId" gorm:"column:mac_id"`
 	AddressObj *networkModels.Object `json:"macObj" gorm:"foreignKey:MacID"`
 
-	SwitchID uint                         `json:"switchId" gorm:"not null;index"`
-	Switch   networkModels.StandardSwitch `gorm:"foreignKey:SwitchID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT"`
+	SwitchID   uint   `json:"switchId" gorm:"index;not null"`
+	SwitchType string `json:"switchType" gorm:"index;not null"`
+
+	StandardSwitch *networkModels.StandardSwitch `gorm:"-" json:"-"`
+	ManualSwitch   *networkModels.ManualSwitch   `gorm:"-" json:"-"`
 
 	Emulation string `json:"emulation"`
+	VMID      uint   `json:"vmId" gorm:"index"`
+}
 
-	VMID uint `json:"vmId" gorm:"index"`
+func (n *Network) AfterFind(tx *gorm.DB) error {
+	switch n.SwitchType {
+	case "standard":
+		var s networkModels.StandardSwitch
+		if err := tx.First(&s, n.SwitchID).Error; err != nil {
+			return fmt.Errorf("load standard switch %d: %w", n.SwitchID, err)
+		}
+		n.StandardSwitch = &s
+	case "manual":
+		var m networkModels.ManualSwitch
+		if err := tx.First(&m, n.SwitchID).Error; err != nil {
+			return fmt.Errorf("load manual switch %d: %w", n.SwitchID, err)
+		}
+		n.ManualSwitch = &m
+	default:
+		return fmt.Errorf("unknown switch type: %s", n.SwitchType)
+	}
+	return nil
 }
 
 type VMStats struct {

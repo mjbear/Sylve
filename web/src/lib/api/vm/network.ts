@@ -10,13 +10,13 @@ export async function detachNetwork(vmId: number, switchId: number): Promise<API
 
 export async function attachNetwork(
 	vmId: number,
-	switchId: number,
+	switchName: string,
 	emulation: string,
 	macId: number
 ): Promise<APIResponse> {
 	return await apiRequest(`/vm/network/attach`, APIResponseSchema, 'POST', {
 		vmId,
-		switchId,
+		switchName,
 		emulation,
 		macId
 	});

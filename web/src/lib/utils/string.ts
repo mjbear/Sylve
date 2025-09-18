@@ -270,3 +270,34 @@ export function toHex(input: string): string {
 		.map((b) => b.toString(16).padStart(2, '0'))
 		.join('');
 }
+
+function encodeBase62Big(num: bigint, length: number): string {
+	const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+	if (num === 0n) return '0'.repeat(length);
+	let out = '';
+	while (num > 0n) {
+		out = alphabet[Number(num % 62n)] + out;
+		num /= 62n;
+	}
+	return out.padStart(length, '0').slice(-length);
+}
+
+function firstHexBytes(hex: string, n: number): Uint8Array {
+	const bytes = new Uint8Array(n);
+	const take = Math.min(n, Math.floor(hex.length / 2));
+	for (let i = 0; i < take; i++) {
+		bytes[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+	}
+	return bytes;
+}
+
+export async function shortHash(input: string, rounds = 1): Promise<string> {
+	const hex = await sha256(input, rounds);
+	const first8 = firstHexBytes(hex, 8);
+	let num = 0n;
+	for (let i = 0; i < first8.length; i++) {
+		num = (num << 8n) + BigInt(first8[i]);
+	}
+	num >>= 16n;
+	return encodeBase62Big(num, 8);
+}

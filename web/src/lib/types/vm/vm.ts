@@ -14,7 +14,7 @@ export interface CreateData {
 		iso: string;
 	};
 	network: {
-		switch: number;
+		switch: string;
 		mac: string;
 		emulation: string;
 	};
@@ -55,6 +55,7 @@ export const VMNetworkSchema = z.object({
 	macId: z.number().int().optional(),
 	macObject: NetworkObjectSchema.optional(),
 	switchId: z.number().int(),
+	switchType: z.enum(['standard', 'manual']),
 	emulation: z.string(),
 	vmId: z.number().int().optional()
 });

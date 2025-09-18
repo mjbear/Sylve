@@ -37,10 +37,15 @@ func (s *Service) NetworkDetach(vmId int, networkId int) error {
 	}
 
 	var network vmModels.Network
-	if err := s.DB.Preload("Switch").Preload("AddressObj").Preload("AddressObj.Entries").
-		First(&network, "id = ?", networkId).
-		Error; err != nil {
+	if err := s.DB.
+		Preload("AddressObj").
+		Preload("AddressObj.Entries").
+		First(&network, "id = ?", networkId).Error; err != nil {
 		return fmt.Errorf("failed_to_find_network: %w", err)
+	}
+
+	if err := network.AfterFind(s.DB); err != nil {
+		return err
 	}
 
 	if network.AddressObj == nil || len(network.AddressObj.Entries) == 0 {
@@ -105,7 +110,7 @@ func (s *Service) NetworkDetach(vmId int, networkId int) error {
 	return nil
 }
 
-func (s *Service) NetworkAttach(vmId int, switchId int, emulation string, macObjId uint) error {
+func (s *Service) NetworkAttach(vmId int, switchName string, emulation string, macObjId uint) error {
 	inactive, err := s.IsDomainInactive(vmId)
 	if err != nil {
 		return fmt.Errorf("failed_to_check_vm_inactive: %w", err)
@@ -119,9 +124,20 @@ func (s *Service) NetworkAttach(vmId int, switchId int, emulation string, macObj
 		return fmt.Errorf("invalid_emulation_type: %s", emulation)
 	}
 
+	swType := ""
+
 	var stdSwitch networkModels.StandardSwitch
-	if err := s.DB.First(&stdSwitch, switchId).Error; err != nil {
-		return fmt.Errorf("failed_to_find_switch: %w", err)
+	if err := s.DB.First(&stdSwitch, "name = ?", switchName).Error; err == nil {
+		swType = "standard"
+	}
+
+	var manualSwitch networkModels.ManualSwitch
+	if err := s.DB.First(&manualSwitch, "name = ?", switchName).Error; err == nil {
+		swType = "manual"
+	}
+
+	if swType == "" {
+		return fmt.Errorf("switch_not_found: %s", switchName)
 	}
 
 	vms, err := s.ListVMs()
@@ -138,19 +154,42 @@ func (s *Service) NetworkAttach(vmId int, switchId int, emulation string, macObj
 	}
 
 	var existingNetwork vmModels.Network
-	if err := s.DB.First(&existingNetwork, "vm_id = ? AND switch_id = ?", vm.ID, switchId).Error; err == nil {
-		return fmt.Errorf("network_already_attached_to_vm: %s", existingNetwork.MAC)
+
+	if swType == "standard" {
+		if err := s.DB.First(&existingNetwork, "vm_id = ? AND switch_id = ?", vm.ID, stdSwitch.ID).Error; err == nil {
+			return fmt.Errorf("network_already_attached_to_vm: %s", existingNetwork.MAC)
+		}
+	} else if swType == "manual" {
+		if err := s.DB.First(&existingNetwork, "vm_id = ? AND manual_switch_id = ?", vm.ID, manualSwitch.ID).Error; err == nil {
+			return fmt.Errorf("network_already_attached_to_vm: %s", existingNetwork.MAC)
+		}
 	}
 
-	var sw networkModels.StandardSwitch
-	if err := s.DB.First(&sw, "id = ?", switchId).Error; err != nil {
-		return fmt.Errorf("failed_to_find_switch: %w", err)
+	var sw any
+
+	switch swType {
+	case "standard":
+		sw = stdSwitch
+	case "manual":
+		sw = manualSwitch
+	default:
+		return fmt.Errorf("unknown_switch_type: %s", swType)
 	}
 
 	if macObjId == 0 {
 		macAddress := utils.GenerateRandomMAC()
 
-		base := fmt.Sprintf("%s-%s", vm.Name, sw.Name)
+		var base string
+
+		switch v := sw.(type) {
+		case networkModels.StandardSwitch:
+			base = fmt.Sprintf("%s-%s", vm.Name, v.Name)
+		case networkModels.ManualSwitch:
+			base = fmt.Sprintf("%s-%s", vm.Name, v.Name)
+		default:
+			return fmt.Errorf("invalid switch type %T", v)
+		}
+
 		name := base
 
 		for i := 0; ; i++ {
@@ -213,11 +252,23 @@ func (s *Service) NetworkAttach(vmId int, switchId int, emulation string, macObj
 		}
 	}
 
+	var switchId uint
+
+	switch v := sw.(type) {
+	case networkModels.StandardSwitch:
+		switchId = v.ID
+	case networkModels.ManualSwitch:
+		switchId = v.ID
+	default:
+		return fmt.Errorf("invalid switch type %T", v)
+	}
+
 	network := vmModels.Network{
-		VMID:      vm.ID,
-		SwitchID:  uint(switchId),
-		MacID:     &macObjId,
-		Emulation: emulation,
+		VMID:       vm.ID,
+		SwitchID:   switchId,
+		SwitchType: swType,
+		MacID:      &macObjId,
+		Emulation:  emulation,
 	}
 
 	if err := s.DB.Create(&network).Error; err != nil {
@@ -266,7 +317,15 @@ func (s *Service) NetworkAttach(vmId int, switchId int, emulation string, macObj
 	ifaceEl.AddChild(macEl)
 
 	sourceEl := etree.NewElement("source")
-	sourceEl.CreateAttr("bridge", stdSwitch.BridgeName)
+
+	if swType == "manual" {
+		manualSwitch := sw.(networkModels.ManualSwitch)
+		sourceEl.CreateAttr("bridge", manualSwitch.Bridge)
+	} else if swType == "standard" {
+		stdSwitch := sw.(networkModels.StandardSwitch)
+		sourceEl.CreateAttr("bridge", stdSwitch.BridgeName)
+	}
+
 	ifaceEl.AddChild(sourceEl)
 
 	modelEl := etree.NewElement("model")

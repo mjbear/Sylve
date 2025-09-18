@@ -23,9 +23,17 @@
 
 	let { open = $bindable(), switches, vm, networkObjects, vms }: Props = $props();
 	let usable = $derived.by(() => {
-		return switches.standard?.filter((s) => {
-			return !vm?.networks.some((n) => n.switchId === s.id);
-		});
+		const standard =
+			switches?.standard?.filter((s) => {
+				return !vm?.networks.some((n) => n.switchId === s.id);
+			}) || [];
+
+		const manual =
+			switches?.manual?.filter((s) => {
+				return !vm?.networks.some((n) => n.switchId === s.id);
+			}) || [];
+
+		return [...standard, ...manual];
 	});
 
 	let usableMacs = $derived.by(() => {
@@ -69,7 +77,7 @@
 
 		const response = await attachNetwork(
 			vm?.vmId ?? 0,
-			Number(properties.switchId),
+			properties.switchId,
 			properties.emulation,
 			properties.mac.value !== '0' ? Number(properties.mac.value) : 0
 		);
@@ -133,7 +141,7 @@
 			label="Switch"
 			placeholder="Select Switch"
 			options={usable?.map((s) => ({
-				value: s.id.toString(),
+				value: s.name,
 				label: s.name
 			})) || []}
 			bind:value={properties.switchId}

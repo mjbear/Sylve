@@ -19,7 +19,7 @@ type CreateVMRequest struct {
 	StorageDataset       string  `json:"storageDataset" binding:"required"`
 	StorageSize          *uint64 `json:"storageSize" binding:"required"`
 	StorageEmulationType string  `json:"storageEmulationType"`
-	SwitchID             *int    `json:"switchId" binding:"required"`
+	SwitchName           string  `json:"switchName"`
 	SwitchEmulationType  string  `json:"switchEmulationType"`
 	MacId                *uint   `json:"macId"`
 	CPUSockets           int     `json:"cpuSockets" binding:"required"`

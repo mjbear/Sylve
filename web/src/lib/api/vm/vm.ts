@@ -31,7 +31,7 @@ export async function newVM(data: CreateData): Promise<APIResponse> {
 		storageDataset: data.storage.guid,
 		storageSize: data.storage.size,
 		storageEmulationType: data.storage.emulation,
-		switchId: data.network.switch,
+		switchName: data.network.switch,
 		switchEmulationType: data.network.emulation,
 		macId: Number(data.network.mac) || 0,
 		cpuSockets: parseInt(data.hardware.sockets.toString(), 10),

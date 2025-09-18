@@ -6,6 +6,19 @@ export async function getSwitches(): Promise<SwitchList> {
 	return await apiRequest('/network/switch', SwitchListSchema, 'GET');
 }
 
+export async function createManualSwitch(name: string, bridge: string): Promise<APIResponse> {
+	const body = {
+		name,
+		bridge
+	};
+
+	return await apiRequest('/network/manual-switch', APIResponseSchema, 'POST', body);
+}
+
+export async function deleteManualSwitch(id: number): Promise<APIResponse> {
+	return await apiRequest(`/network/manual-switch/${id}`, APIResponseSchema, 'DELETE');
+}
+
 export async function createSwitch(
 	name: string,
 	mtu: number,

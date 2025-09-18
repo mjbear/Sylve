@@ -11,7 +11,7 @@
 	import { generateMACOptions } from '$lib/utils/network/object';
 
 	interface Props {
-		switch: number;
+		switch: string;
 		mac: string;
 		emulation: string;
 		switches: SwitchList;
@@ -63,7 +63,7 @@
 
 	$effect(() => {
 		if (swStr) {
-			nwSwitch = parseInt(swStr) || 0;
+			nwSwitch = swStr || '';
 		}
 	});
 
@@ -74,16 +74,20 @@
 	});
 </script>
 
-{#snippet radioItem(id: number, name: string)}
+{#snippet radioItem(id: number, name: string, type: 'standard' | 'manual' | 'none')}
 	{@const i = `radio-${id}`}
 	<div class="mb-2 flex items-center space-x-3 rounded-lg border p-4">
-		<RadioGroup.Item value={id.toString()} id={i} />
+		<RadioGroup.Item value={name} id={i} />
 		<Label for={i} class="flex flex-col items-start gap-2">
 			<p class="">{name}</p>
 			<p class="text-muted-foreground text-sm">
-				{name === 'None'
-					? 'No network switch will be allocated now, you can add it later'
-					: 'Standard switch'}
+				{#if type === 'none'}
+					No network switch will be allocated now, you can add it later
+				{:else if type === 'manual'}
+					Manual switch
+				{:else}
+					Standard switch
+				{/if}
 			</p>
 		</Label>
 	</div>
@@ -94,10 +98,17 @@
 		<ScrollArea orientation="vertical" class="h-64 w-full max-w-full">
 			{#if switches && switches.standard}
 				{#each switches.standard ?? [] as sw}
-					{@render radioItem(sw.id, sw.name)}
+					{@render radioItem(sw.id, sw.name, 'standard')}
 				{/each}
 			{/if}
-			{@render radioItem(0, 'None')}
+
+			{#if switches && switches.manual}
+				{#each switches.manual ?? [] as sw}
+					{@render radioItem(sw.id, sw.name, 'manual')}
+				{/each}
+			{/if}
+
+			{@render radioItem(0, 'None', 'none')}
 		</ScrollArea>
 	</RadioGroup.Root>
 

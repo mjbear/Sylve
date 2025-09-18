@@ -56,6 +56,10 @@ export const MediaSchema = z.object({
 
 export const ND6Schema = FlagsSchema;
 
+export const BridgeMemberSchema = z.object({
+	name: z.string()
+});
+
 export const IfaceSchema = z.object({
 	name: z.string(),
 	ether: z.string(),
@@ -73,7 +77,9 @@ export const IfaceSchema = z.object({
 	ipv6: z.array(IPv6Schema).default([]).nullable().optional(),
 	media: MediaSchema.nullable().optional(),
 	nd6: ND6Schema.nullable().optional(),
-	groups: z.array(z.string()).default([]).nullable().optional()
+	groups: z.array(z.string()).default([]).nullable().optional(),
+	bridgeMembers: z.array(BridgeMemberSchema).default([]).nullable().optional()
 });
 
 export type Iface = z.infer<typeof IfaceSchema>;
+export type BridgeMember = z.infer<typeof BridgeMemberSchema>;

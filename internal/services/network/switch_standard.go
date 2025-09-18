@@ -74,6 +74,17 @@ func (s *Service) NewStandardSwitch(
 	slaac bool,
 	defaultRoute bool,
 ) error {
+	var count int64
+	if err := s.DB.Model(&networkModels.ManualSwitch{}).
+		Where("name = ?", name).
+		Count(&count).Error; err != nil {
+		return err
+	}
+
+	if count > 0 {
+		return fmt.Errorf("switch_name_in_use")
+	}
+
 	if !utils.IsValidMTU(mtu) && mtu != 0 {
 		return fmt.Errorf("invalid_mtu")
 	}

@@ -206,6 +206,9 @@ func RegisterRoutes(r *gin.Engine,
 
 		network.GET("/interface", networkHandlers.ListInterfaces(networkService))
 
+		network.POST("/manual-switch", networkHandlers.CreateManualSwitch(networkService))
+		network.DELETE("/manual-switch/:id", networkHandlers.DeleteManualSwitch(networkService))
+
 		network.GET("/switch", networkHandlers.ListSwitches(networkService))
 		network.POST("/switch/standard", networkHandlers.CreateStandardSwitch(networkService))
 		network.DELETE("/switch/standard/:id", networkHandlers.DeleteStandardSwitch(networkService))

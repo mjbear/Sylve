@@ -37,6 +37,17 @@ func (s *Service) CreateManualSwitch(name, bridge string) (*networkModels.Manual
 		return nil, fmt.Errorf("interface %s is not a bridge", bridge)
 	}
 
+	var count int64
+	if err := s.DB.Model(&networkModels.ManualSwitch{}).
+		Where("name = ?", name).
+		Count(&count).Error; err != nil {
+		return nil, err
+	}
+
+	if count > 0 {
+		return nil, fmt.Errorf("bridge_name_in_use")
+	}
+
 	sw := &networkModels.ManualSwitch{
 		Name:   name,
 		Bridge: bridge,

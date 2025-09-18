@@ -11,7 +11,7 @@
 	import type { Column, Row } from '$lib/types/components/tree-table';
 	import type { Iface } from '$lib/types/network/iface';
 	import type { NetworkObject } from '$lib/types/network/object';
-	import type { SwitchList } from '$lib/types/network/switch';
+	import type { ManualSwitch, StandardSwitch, SwitchList } from '$lib/types/network/switch';
 	import type { VM, VMDomain } from '$lib/types/vm/vm';
 	import { handleAPIError, updateCache } from '$lib/utils/http';
 	import Icon from '@iconify/svelte';
@@ -125,22 +125,30 @@
 
 		if (vm?.networks) {
 			for (const network of vm.networks) {
-				const sw = switches.standard?.find((s) => s.id === network.switchId);
-				const macObj = networkObjects.find((obj) => obj.id === network.macId);
-				const mac =
-					macObj && macObj.entries && macObj.entries.length > 0
-						? macObj.entries[0].value
-						: undefined;
+				let sw: StandardSwitch | ManualSwitch | null = null;
+				if (network.switchType === 'standard') {
+					sw = switches.standard?.find((s) => s.id === network.switchId) ?? null;
+				} else if (network.switchType === 'manual') {
+					sw = switches.manual?.find((s) => s.id === network.switchId) ?? null;
+				}
 
-				const row: Row = {
-					id: network.id,
-					name: sw?.name || 'Unknown Switch',
-					mac: `${macObj?.name} (${mac})` || 'Unknown MAC',
-					macObject: macObj || null,
-					emulation: network.emulation || 'Unknown'
-				};
+				if (sw) {
+					const macObj = networkObjects.find((obj) => obj.id === network.macId);
+					const mac =
+						macObj && macObj.entries && macObj.entries.length > 0
+							? macObj.entries[0].value
+							: undefined;
 
-				rows.push(row);
+					const row: Row = {
+						id: network.id,
+						name: sw.name || 'Unknown Switch',
+						mac: `${macObj?.name} (${mac})` || 'Unknown MAC',
+						macObject: macObj || null,
+						emulation: network.emulation || 'Unknown'
+					};
+
+					rows.push(row);
+				}
 			}
 		}
 
@@ -253,8 +261,8 @@
 				});
 			}
 
-			properties.detach.open = false;
 			activeRows = null;
+			properties.detach.open = false;
 		},
 		onCancel: () => {
 			properties.detach.open = false;

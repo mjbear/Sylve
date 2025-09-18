@@ -10,6 +10,7 @@ export const NetworkPortSchema = z.object({
 export const StandardSwitchSchema = z.object({
 	id: z.number(),
 	name: z.string(),
+	bridgeName: z.string(),
 	mtu: z.number(),
 	vlan: z.number(),
 	private: z.boolean(),
@@ -28,9 +29,19 @@ export const StandardSwitchSchema = z.object({
 	defaultRoute: z.boolean()
 });
 
+export const ManualSwitchSchema = z.object({
+	id: z.number(),
+	name: z.string(),
+	bridge: z.string(),
+	createdAt: z.string(),
+	updatedAt: z.string()
+});
+
 export const SwitchListSchema = z.object({
-	standard: z.array(StandardSwitchSchema).optional()
+	standard: z.array(StandardSwitchSchema).optional(),
+	manual: z.array(ManualSwitchSchema).optional()
 });
 
 export type StandardSwitch = z.infer<typeof StandardSwitchSchema>;
+export type ManualSwitch = z.infer<typeof ManualSwitchSchema>;
 export type SwitchList = z.infer<typeof SwitchListSchema>;

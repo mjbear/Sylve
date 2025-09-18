@@ -185,12 +185,31 @@ func (s *Service) CreateVmXML(vm vmModels.VM, vmPath string) (string, error) {
 					mac = &libvirtServiceInterfaces.MACAddress{Address: entry.Value}
 				}
 
-				interfaces = append(interfaces, libvirtServiceInterfaces.Interface{
-					Type:   nType,
-					MAC:    mac,
-					Source: libvirtServiceInterfaces.BridgeSource{Bridge: network.Switch.BridgeName},
-					Model:  libvirtServiceInterfaces.Model{Type: emulation},
-				})
+				if network.SwitchType == "manual" {
+					var sw networkModels.ManualSwitch
+					if err := s.DB.Where("id = ?", network.SwitchID).First(&sw).Error; err != nil {
+						return "", fmt.Errorf("failed_to_find_manual_switch: %w", err)
+					}
+
+					interfaces = append(interfaces, libvirtServiceInterfaces.Interface{
+						Type:   nType,
+						MAC:    mac,
+						Source: libvirtServiceInterfaces.BridgeSource{Bridge: sw.Bridge},
+						Model:  libvirtServiceInterfaces.Model{Type: emulation},
+					})
+				} else if network.SwitchType == "standard" {
+					var sw networkModels.StandardSwitch
+					if err := s.DB.Where("id = ?", network.SwitchID).First(&sw).Error; err != nil {
+						return "", fmt.Errorf("failed_to_find_standard_switch: %w", err)
+					}
+
+					interfaces = append(interfaces, libvirtServiceInterfaces.Interface{
+						Type:   nType,
+						MAC:    mac,
+						Source: libvirtServiceInterfaces.BridgeSource{Bridge: sw.BridgeName},
+						Model:  libvirtServiceInterfaces.Model{Type: emulation},
+					})
+				}
 			}
 		}
 	}
@@ -317,7 +336,7 @@ func (s *Service) CreateLvVm(id int) error {
 	defer s.crudMutex.Unlock()
 
 	var vm vmModels.VM
-	if err := s.DB.Preload("Storages").Preload("Networks.Switch").First(&vm, id).Error; err != nil {
+	if err := s.DB.Preload("Storages").Preload("Networks").First(&vm, id).Error; err != nil {
 		return fmt.Errorf("failed_to_find_vm: %w", err)
 	}
 

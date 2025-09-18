@@ -17,7 +17,7 @@
 	import { isAPIResponse, updateCache } from '$lib/utils/http';
 	import { generateComboboxOptions } from '$lib/utils/input';
 	import { generateIPOptions, generateNetworkOptions } from '$lib/utils/network/object';
-	import { generateTableData } from '$lib/utils/network/switch';
+	import { generateTableData } from '$lib/utils/network/switch/standard';
 	import { isValidMTU, isValidVLAN } from '$lib/utils/numbers';
 	import { isValidSwitchName } from '$lib/utils/string';
 	import Icon from '@iconify/svelte';
@@ -284,7 +284,7 @@
 		}
 	}
 
-	let tableData = $derived(generateTableData(switches, 'standard'));
+	let tableData = $derived(generateTableData(switches));
 	let activeRows: Row[] | null = $state(null);
 	let activeRow: Row | null = $derived(activeRows ? (activeRows[0] as Row) : ({} as Row));
 
@@ -483,9 +483,9 @@
 						<div class="flex items-center">
 							<Icon icon="clarity:network-switch-line" class="mr-2 h-6 w-6" />
 							{#if confirmModals.active === 'editSwitch'}
-								{'Edit Switch -' + confirmModals.editSwitch.oldName}
+								{`Edit Standard Switch - ${confirmModals.editSwitch.oldName}`}
 							{:else}
-								{'New Switch'}
+								{'Create Standard Switch'}
 							{/if}
 						</div>
 					</Dialog.Title>

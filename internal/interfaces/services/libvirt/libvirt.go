@@ -20,7 +20,7 @@ type LibvirtServiceInterface interface {
 	RescanStoragePools() error
 
 	NetworkDetach(vmId int, networkId int) error
-	NetworkAttach(vmId int, switchId int, emulation string, macObjId uint) error
+	NetworkAttach(vmId int, switchName string, emulation string, macObjId uint) error
 	FindAndChangeMAC(vmId int, oldMac string, newMac string) error
 
 	StoreVMUsage() error

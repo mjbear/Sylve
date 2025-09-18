@@ -194,7 +194,7 @@ func validateCreate(data libvirtServiceInterfaces.CreateVMRequest, db *gorm.DB) 
 		}
 	}
 
-	if data.SwitchID != nil && *data.SwitchID != 0 {
+	if data.SwitchName != "" && strings.ToLower(data.SwitchName) != "none" {
 		var macId uint
 		if data.MacId != nil {
 			macId = *data.MacId
@@ -382,14 +382,46 @@ func (s *Service) CreateVM(data libvirtServiceInterfaces.CreateVMRequest) error 
 	}
 
 	var networks []vmModels.Network
-	if data.SwitchID != nil && *data.SwitchID != 0 {
-		var sw networkModels.StandardSwitch
-		if err := s.DB.Where("id = ?", *data.SwitchID).First(&sw).Error; err != nil {
-			return fmt.Errorf("failed_to_find_switch: %w", err)
+	if data.SwitchName != "" && strings.ToLower(data.SwitchName) != "none" {
+		swType := ""
+
+		var stdSwitch networkModels.StandardSwitch
+		if err := s.DB.First(&stdSwitch, "name = ?", data.SwitchName).Error; err == nil {
+			swType = "standard"
+		}
+
+		var manualSwitch networkModels.ManualSwitch
+		if err := s.DB.First(&manualSwitch, "name = ?", data.SwitchName).Error; err == nil {
+			swType = "manual"
+		}
+
+		if swType == "" {
+			return fmt.Errorf("switch_not_found: %s", data.SwitchName)
+		}
+
+		var sw any
+
+		switch swType {
+		case "standard":
+			sw = stdSwitch
+		case "manual":
+			sw = manualSwitch
+		default:
+			return fmt.Errorf("unknown_switch_type: %s", swType)
 		}
 
 		if macId == 0 {
-			base := fmt.Sprintf("%s-%s", data.Name, sw.Name)
+			var base string
+
+			switch v := sw.(type) {
+			case networkModels.StandardSwitch:
+				base = fmt.Sprintf("%s-%s", data.Name, v.Name)
+			case networkModels.ManualSwitch:
+				base = fmt.Sprintf("%s-%s", data.Name, v.Name)
+			default:
+				return fmt.Errorf("invalid switch type %T", v)
+			}
+
 			name := base
 
 			for i := 0; ; i++ {
@@ -431,10 +463,22 @@ func (s *Service) CreateVM(data libvirtServiceInterfaces.CreateVMRequest) error 
 			macId = macObj.ID
 		}
 
+		var switchId uint
+
+		switch v := sw.(type) {
+		case networkModels.StandardSwitch:
+			switchId = v.ID
+		case networkModels.ManualSwitch:
+			switchId = v.ID
+		default:
+			return fmt.Errorf("invalid switch type %T", v)
+		}
+
 		networks = append(networks, vmModels.Network{
-			MacID:     &macId,
-			SwitchID:  uint(*data.SwitchID),
-			Emulation: data.SwitchEmulationType,
+			MacID:      &macId,
+			SwitchID:   switchId,
+			SwitchType: swType,
+			Emulation:  data.SwitchEmulationType,
 		})
 	}
 

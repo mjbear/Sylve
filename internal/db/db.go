@@ -26,6 +26,8 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
+
+	sambaUtils "github.com/alchemillahq/sylve/pkg/system/samba"
 )
 
 func SetupDatabase(cfg *internal.SylveConfig, isTest bool) *gorm.DB {
@@ -161,7 +163,7 @@ func setupInitUsers(db *gorm.DB, cfg *internal.SylveConfig) error {
 				logger.L.Error().Msgf("Failed to create admin user: %v", err)
 				return err
 			}
-			logger.L.Info().Msg("Admin user created successfully")
+			logger.L.Info().Msg("Admin user created")
 		} else {
 			logger.L.Error().Msgf("Error querying admin user: %v", result.Error)
 			return result.Error
@@ -183,7 +185,7 @@ func setupInitUsers(db *gorm.DB, cfg *internal.SylveConfig) error {
 			return err
 		}
 
-		logger.L.Info().Msg("Admin user updated successfully")
+		logger.L.Info().Msg("Admin user updated")
 	}
 
 	exists, err := system.UnixUserExists(username)
@@ -196,7 +198,26 @@ func setupInitUsers(db *gorm.DB, cfg *internal.SylveConfig) error {
 			logger.L.Error().Msgf("Failed to create Unix user 'admin': %v", err)
 			return err
 		}
-		logger.L.Info().Msg("Unix user 'admin' created successfully")
+		logger.L.Info().Msg("Unix user 'admin' created")
+	}
+
+	smbExists, err := sambaUtils.SambaUserExists(username)
+	if err != nil {
+		logger.L.Error().Msgf("Error checking Samba user 'admin': %v", err)
+	}
+
+	if !smbExists {
+		err := sambaUtils.CreateSambaUser(username, adminCfg.Password)
+		if err != nil {
+			logger.L.Error().Msgf("Failed to create Samba user 'admin': %v", err)
+			return err
+		}
+	} else {
+		err := sambaUtils.EditSambaUser(username, adminCfg.Password)
+		if err != nil {
+			logger.L.Error().Msgf("Failed to update Samba user 'admin': %v", err)
+			return err
+		}
 	}
 
 	return nil

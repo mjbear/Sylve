@@ -2,12 +2,9 @@ import type { Column, Row } from '$lib/types/components/tree-table';
 import type { NetworkObject } from '$lib/types/network/object';
 import type { SwitchList } from '$lib/types/network/switch';
 import type { CellComponent } from 'tabulator-tables';
-import { renderWithIcon } from '../table';
+import { renderWithIcon } from '../../table';
 
-export function generateTableData(
-	switches: SwitchList | undefined,
-	type: 'standard' = 'standard'
-): {
+export function generateTableData(switches: SwitchList | undefined): {
 	rows: Row[];
 	columns: Column[];
 } {
@@ -179,8 +176,8 @@ export function generateTableData(
 
 	const rows: Row[] = [];
 
-	if (switches && switches[type]) {
-		for (const sw of switches[type]) {
+	if (switches && switches['standard']) {
+		for (const sw of switches['standard']) {
 			const portsOnly =
 				sw.ports?.map((port) => {
 					return port.name;
