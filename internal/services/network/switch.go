@@ -22,7 +22,7 @@ func (s *Service) GetBridgeNameByID(id uint) (string, error) {
 	}
 
 	for _, sw := range standardSwitches {
-		if sw.ID == int(id) {
+		if sw.ID == id {
 			return sw.BridgeName, nil
 		}
 	}

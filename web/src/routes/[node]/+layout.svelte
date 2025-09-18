@@ -121,7 +121,18 @@
 						{
 							label: 'Switches',
 							icon: 'clarity:network-switch-line',
-							href: `/${node}/network/switches`
+							children: [
+								{
+									label: 'Manual',
+									icon: 'streamline-sharp:router-wifi-network-solid',
+									href: `/${node}/network/switches/manual`
+								},
+								{
+									label: 'Standard',
+									icon: 'mdi:router-network',
+									href: `/${node}/network/switches/standard`
+								}
+							]
 						}
 					]
 				},

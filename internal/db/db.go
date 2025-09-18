@@ -86,6 +86,7 @@ func SetupDatabase(cfg *internal.SylveConfig, isTest bool) *gorm.DB {
 
 		&zfsModels.PeriodicSnapshot{},
 
+		&networkModels.ManualSwitch{},
 		&networkModels.StandardSwitch{},
 		&networkModels.NetworkPort{},
 

@@ -27,7 +27,7 @@ type NetworkServiceInterface interface {
 		slaac bool,
 		defaultRoute bool) error
 
-	EditStandardSwitch(id int,
+	EditStandardSwitch(id uint,
 		mtu int,
 		vlan int,
 		network4Id uint,

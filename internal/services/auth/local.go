@@ -13,8 +13,10 @@ import (
 	"time"
 
 	"github.com/alchemillahq/sylve/internal/db/models"
+	"github.com/alchemillahq/sylve/internal/logger"
 	"github.com/alchemillahq/sylve/pkg/system"
 	"github.com/alchemillahq/sylve/pkg/system/samba"
+	sambaUtils "github.com/alchemillahq/sylve/pkg/system/samba"
 	"github.com/alchemillahq/sylve/pkg/utils"
 )
 
@@ -153,6 +155,11 @@ func (s *Service) EditUser(userID uint, username string, password string, email 
 	}
 
 	user.Admin = admin
+
+	err = sambaUtils.EditSambaUser(user.Username, password)
+	if err != nil {
+		logger.L.Error().Msgf("Failed to update Samba user '%s': %v", user.Username, err)
+	}
 
 	if err := s.DB.Save(user).Error; err != nil {
 		return fmt.Errorf("failed_to_edit_user: %w", err)

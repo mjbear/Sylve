@@ -15,6 +15,7 @@ import (
 	"strings"
 	"time"
 
+	jailModels "github.com/alchemillahq/sylve/internal/db/models/jail"
 	networkModels "github.com/alchemillahq/sylve/internal/db/models/network"
 	vmModels "github.com/alchemillahq/sylve/internal/db/models/vm"
 	"github.com/alchemillahq/sylve/internal/logger"
@@ -36,7 +37,7 @@ func (s *Service) GetStandardSwitches() ([]networkModels.StandardSwitch, error) 
 	return switches, nil
 }
 
-func (s *Service) conflictingPortsForVLAN(ports []string, vlan int, excludeSwitchID *int) ([]networkModels.NetworkPort, error) {
+func (s *Service) conflictingPortsForVLAN(ports []string, vlan int, excludeSwitchID *uint) ([]networkModels.NetworkPort, error) {
 	var eps []networkModels.NetworkPort
 	q := s.DB.Preload("Switch").Where("name IN ?", ports)
 	if excludeSwitchID != nil {
@@ -234,7 +235,7 @@ func (s *Service) NewStandardSwitch(
 }
 
 func (s *Service) DeleteStandardSwitch(id int) error {
-	var vmCount int64
+	var vmCount, jailCount int64
 
 	if err := s.DB.Model(&vmModels.Network{}).
 		Where("switch_id = ?", id).
@@ -244,6 +245,16 @@ func (s *Service) DeleteStandardSwitch(id int) error {
 
 	if vmCount > 0 {
 		return fmt.Errorf("switch_in_use_by_vm")
+	}
+
+	if err := s.DB.Model(&jailModels.Network{}).
+		Where("switch_id = ?", id).
+		Count(&jailCount).Error; err != nil {
+		return fmt.Errorf("db_error_checking_jail_switch: %v", err)
+	}
+
+	if jailCount > 0 {
+		return fmt.Errorf("switch_in_use_by_jail")
 	}
 
 	var oldSw networkModels.StandardSwitch
@@ -314,7 +325,7 @@ func (s *Service) DeleteStandardSwitch(id int) error {
 }
 
 func (s *Service) EditStandardSwitch(
-	id int,
+	id uint,
 	mtu int,
 	vlan int,
 	network4Id uint,

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-09-05T14:14:55.751Z\n"
-"PO-Revision-Date: 2025-09-17T18:12:14.736Z\n"
+"PO-Revision-Date: 2025-09-18T10:32:03.415Z\n"
 "Last-Translator: \n"
 "Language: Malayalam\n"
 "Language-Team: \n"
@@ -105,8 +105,8 @@ msgstr ""
 
 #: src/lib/components/skeleton/BottomPanel.svelte
 #: src/routes/datacenter/+layout.svelte
-#: src/routes/[node]/+layout.svelte
 #: src/routes/[node]/jail/[node]/summary/+page.svelte
+#: src/routes/[node]/+layout.svelte
 msgid "Notes"
 msgstr ""
 
@@ -345,6 +345,8 @@ msgstr ""
 #: src/lib/components/custom/ZFS/datasets/fs/Create.svelte
 #: src/lib/components/custom/VM/Hardware/Storage.svelte
 #: src/lib/components/custom/VM/Hardware/Storage.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Close"
 msgstr ""
 
@@ -558,6 +560,8 @@ msgstr ""
 #: src/lib/components/custom/ZFS/datasets/fs/Create.svelte
 #: src/lib/components/custom/VM/Hardware/Storage.svelte
 #: src/lib/components/custom/VM/Hardware/Storage.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Reset"
 msgstr ""
 
@@ -770,6 +774,7 @@ msgstr ""
 #: src/lib/components/custom/Jail/Create/Network.svelte
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "IPv4 Network"
 msgstr ""
 
@@ -780,6 +785,8 @@ msgstr ""
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "IPv4"
 msgstr ""
 
@@ -791,18 +798,21 @@ msgstr ""
 #: src/lib/components/custom/Jail/Create/Network.svelte
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "IPv4 Gateway"
 msgstr ""
 
 #: src/lib/components/custom/Jail/Create/Network.svelte
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Select IPv4 Gateway"
 msgstr ""
 
 #: src/lib/components/custom/Jail/Create/Network.svelte
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "IPv6 Network"
 msgstr ""
 
@@ -813,6 +823,8 @@ msgstr ""
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "IPv6"
 msgstr ""
 
@@ -824,12 +836,14 @@ msgstr ""
 #: src/lib/components/custom/Jail/Create/Network.svelte
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "IPv6 Gateway"
 msgstr ""
 
 #: src/lib/components/custom/Jail/Create/Network.svelte
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Select IPv6 Gateway"
 msgstr ""
 
@@ -842,6 +856,7 @@ msgstr ""
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "DHCP"
 msgstr ""
 
@@ -849,6 +864,7 @@ msgstr ""
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "SLAAC"
 msgstr ""
 
@@ -909,8 +925,8 @@ msgstr ""
 msgid "Hardware"
 msgstr ""
 
-#: src/routes/[node]/+layout.svelte
 #: src/lib/components/custom/ZFS/pools/Create.svelte
+#: src/routes/[node]/+layout.svelte
 msgid "Options"
 msgstr ""
 
@@ -918,10 +934,10 @@ msgstr ""
 msgid "Objects"
 msgstr ""
 
+#: src/routes/[node]/storage/samba/settings/+page.svelte
+#: src/routes/[node]/storage/samba/settings/+page.svelte
+#: src/routes/[node]/storage/samba/settings/+page.svelte
 #: src/routes/[node]/+layout.svelte
-#: src/routes/[node]/storage/samba/settings/+page.svelte
-#: src/routes/[node]/storage/samba/settings/+page.svelte
-#: src/routes/[node]/storage/samba/settings/+page.svelte
 msgid "Interfaces"
 msgstr ""
 
@@ -933,14 +949,14 @@ msgstr ""
 msgid "Explorer"
 msgstr ""
 
-#: src/routes/[node]/+layout.svelte
 #: src/lib/components/custom/ZFS/pools/Create.svelte
+#: src/routes/[node]/+layout.svelte
 msgid "Disks"
 msgstr ""
 
+#: src/routes/[node]/storage/disks/+page.svelte
+#: src/routes/[node]/storage/disks/+page.svelte
 #: src/routes/[node]/+layout.svelte
-#: src/routes/[node]/storage/disks/+page.svelte
-#: src/routes/[node]/storage/disks/+page.svelte
 msgid "ZFS"
 msgstr ""
 
@@ -1125,6 +1141,7 @@ msgstr ""
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/datacenter/storage/+page.svelte
 #: src/routes/[node]/storage/zfs/pools/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Delete"
 msgstr ""
 
@@ -1140,6 +1157,7 @@ msgstr ""
 #: src/lib/components/custom/ZFS/datasets/fs/Edit.svelte
 #: src/routes/[node]/storage/zfs/pools/+page.svelte
 #: src/lib/components/custom/ZFS/pools/Edit.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Edit"
 msgstr ""
 
@@ -1166,6 +1184,7 @@ msgstr ""
 #: src/routes/[node]/utilities/downloader/+page.svelte
 #: src/routes/[node]/storage/zfs/datasets/fs/+page.svelte
 #: src/routes/[node]/vm/[node]/storage/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "New"
 msgstr ""
 
@@ -1196,6 +1215,7 @@ msgstr ""
 #: src/routes/[node]/vm/[node]/network/+page.svelte
 #: src/lib/components/custom/ZFS/datasets/fs/Create.svelte
 #: src/lib/components/custom/VM/Hardware/Storage.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Name"
 msgstr ""
 
@@ -1233,6 +1253,7 @@ msgstr ""
 #: src/routes/[node]/jail/[node]/network/+page.svelte
 #: src/lib/components/custom/Jail/Hardware/CPU.svelte
 #: src/lib/components/custom/Jail/Hardware/RAM.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Save"
 msgstr ""
 
@@ -1382,6 +1403,7 @@ msgstr ""
 #: src/lib/components/custom/ZFS/datasets/snapshots/CreateDetailed.svelte
 #: src/lib/components/custom/ZFS/pools/Create.svelte
 #: src/lib/components/custom/ZFS/datasets/fs/Create.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Create"
 msgstr ""
 
@@ -1515,6 +1537,7 @@ msgstr ""
 
 #: src/routes/[node]/network/interfaces/+page.svelte
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "MTU"
 msgstr ""
 
@@ -2025,88 +2048,111 @@ msgid "Select an option"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Edit Switch -"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "New Switch"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "VLAN"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Select IPv4 Network"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Select IPv6 Network"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Ports"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Select ports"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Private"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Disable IPV6"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Default Route"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Switch {0} deleted"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Switch is in use by a VM"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Error deleting switch"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Invalid switch name"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Invalid MTU"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Invalid VLAN"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "There is already a switch with a default route"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Switch {0} created"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Error creating switch"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Switch {0} updated"
 msgstr ""
 
 #: src/routes/[node]/network/switches/+page.svelte
+#: src/routes/[node]/network/switches/standard/+page.svelte
 msgid "Error updating switch"
 msgstr ""
 
@@ -3810,6 +3856,23 @@ msgstr ""
 msgid "Existing image will be used"
 msgstr ""
 
-#: src/lib/components/custom/VM/Hardware/Storage.svelte
-msgid "GB"
+#~ msgid "GB"
+#~ msgstr ""
+
+#~ msgid "Manual Switches"
+#~ msgstr ""
+
+#~ msgid "Standard Switches"
+#~ msgstr ""
+
+#: src/routes/[node]/+layout.svelte
+msgid "Manual"
+msgstr ""
+
+#: src/routes/[node]/+layout.svelte
+msgid "Standard"
+msgstr ""
+
+#: src/routes/[node]/network/switches/manual/+page.svelte
+msgid "hello"
 msgstr ""
