@@ -17,8 +17,8 @@ We’re proud to be supported by:
 
 <p align="center">
   <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./docs/sponsors/FreeBSD-White.png">
-        <img src="./docs/sponsors/FreeBSD-Red.png" alt="FreeBSD Foundation" width="200"/>
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/sponsors/FreeBSD-White.png">
+    <img src="./docs/sponsors/FreeBSD-Red.png" alt="FreeBSD Foundation" width="200"/>
   </picture>
   &emsp;&emsp;&emsp;
   <a href="https://alchemilla.io">
