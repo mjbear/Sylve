@@ -100,7 +100,7 @@ func (s *Service) CheckPackageDependencies() error {
 		go func() {
 			defer wg.Done()
 			if !pkg.IsPackageInstalled(p) {
-				errCh <- fmt.Errorf("Required package %s is not installed, run the command 'pkg install libvirt bhyve-firmware smartmontools tmux samba419' to install all required packages", p)
+				errCh <- fmt.Errorf("Required package %s is not installed, run the command 'pkg install libvirt bhyve-firmware smartmontools tmux samba419 jansson swtpm' to install all required packages", p)
 			}
 		}()
 	}
