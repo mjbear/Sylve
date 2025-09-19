@@ -210,7 +210,7 @@
 			iso: ''
 		},
 		network: {
-			switch: '',
+			switch: 'None',
 			mac: '',
 			emulation: 'e1000'
 		},

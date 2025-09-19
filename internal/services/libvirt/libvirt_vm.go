@@ -97,12 +97,6 @@ func (s *Service) CreateVmXML(vm vmModels.VM, vmPath string) (string, error) {
 				return "", fmt.Errorf("dataset_not_found: %s", storage.Dataset)
 			}
 
-			pool := ""
-
-			if dataset != nil {
-				pool = strings.SplitN(dataset.Name, "/", 2)[0]
-			}
-
 			if storage.Type == "iso" {
 				isoPath, err := s.FindISOByUUID(storage.Dataset, false)
 				if err != nil {
@@ -125,19 +119,14 @@ func (s *Service) CreateVmXML(vm vmModels.VM, vmPath string) (string, error) {
 
 				sIndex++
 			} else if storage.Type == "zvol" {
-				volume := dataset.Name
-
-				if idx := strings.LastIndex(volume, "/"); idx != -1 {
-					volume = volume[idx+1:]
-				}
-
+				devPath := fmt.Sprintf("/dev/zvol/%s", dataset.Name)
 				bhyveArgs = append(bhyveArgs, []libvirtServiceInterfaces.BhyveArg{
 					{
 						Value: fmt.Sprintf("-s %d:%d,%s,%s",
 							sIndex,
 							0,
 							storage.Emulation,
-							filepath.Join("/dev/zvol", pool, volume)),
+							devPath),
 					},
 				})
 

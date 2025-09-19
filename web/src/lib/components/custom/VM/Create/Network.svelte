@@ -55,18 +55,6 @@
 		}
 	});
 
-	let swStr = $state('');
-
-	onMount(() => {
-		swStr = nwSwitch.toString();
-	});
-
-	$effect(() => {
-		if (swStr) {
-			nwSwitch = swStr || '';
-		}
-	});
-
 	$effect(() => {
 		if (comboBoxes.mac.value) {
 			mac = comboBoxes.mac.value;
@@ -94,7 +82,7 @@
 {/snippet}
 
 <div class="flex flex-col gap-4 p-4">
-	<RadioGroup.Root bind:value={swStr} class="border p-2">
+	<RadioGroup.Root bind:value={nwSwitch} class="border p-2">
 		<ScrollArea orientation="vertical" class="h-64 w-full max-w-full">
 			{#if switches && switches.standard}
 				{#each switches.standard ?? [] as sw}
@@ -112,7 +100,7 @@
 		</ScrollArea>
 	</RadioGroup.Root>
 
-	{#if swStr !== '0'}
+	{#if nwSwitch !== 'None' && nwSwitch !== ''}
 		<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 			<CustomComboBox
 				bind:open={comboBoxes.emulation.open}
