@@ -15,7 +15,7 @@ type CreateJailRequest struct {
 	Dataset     string `json:"dataset"`
 	Base        string `json:"base"`
 
-	SwitchId *int `json:"switchId"`
+	SwitchName string `json:"switchName"`
 
 	InheritIPv4 *bool `json:"inheritIPv4"`
 	InheritIPv6 *bool `json:"inheritIPv6"`

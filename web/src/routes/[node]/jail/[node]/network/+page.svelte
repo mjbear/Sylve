@@ -100,13 +100,10 @@
 		return false;
 	});
 
-	let usableSwitches = $derived.by(() => {
-		if (!jail) return [];
-		return (
-			switches.standard?.filter((s) => {
-				return !jail.networks.some((n) => n.switchId === s.id);
-			}) || []
-		);
+	let usable = $derived.by(() => {
+		return [...(switches.standard || []), ...(switches.manual || [])].filter((s) => {
+			return !jail?.networks.some((n) => n.switchId === s.id);
+		});
 	});
 
 	let options = {
@@ -216,9 +213,16 @@
 						}
 					}
 
+					let name = '';
+					if (network.switchType === 'standard') {
+						name = switches.standard?.find((sw) => sw.id === network.switchId)?.name || '';
+					} else {
+						name = switches.manual?.find((sw) => sw.id === network.switchId)?.name || '';
+					}
+
 					rows.push({
 						id: network.id,
-						switch: switches.standard?.find((sw) => sw.id === network.switchId)?.name,
+						switch: name,
 						mac: macFormtter(networkObjects, network.macId || 0),
 						ipv4,
 						ipv6
@@ -308,7 +312,7 @@
 
 		const response = await addNetwork(
 			jail.ctId,
-			parseInt(modals.add.sw.value),
+			modals.add.sw.value,
 			parseInt(modals.add.mac.value),
 			parseInt(modals.add.ipv4.value || '0'),
 			parseInt(modals.add.ipv4Gw.value || '0'),
@@ -371,7 +375,7 @@
 		{#if !inherited}
 			<Button
 				onclick={() => {
-					if (usableSwitches.length === 0) {
+					if (usable.length === 0) {
 						toast.error('No available switches to add', {
 							position: 'bottom-center'
 						});
@@ -557,9 +561,9 @@
 				bind:open={modals.add.sw.open}
 				label="Switch"
 				bind:value={modals.add.sw.value}
-				data={usableSwitches.map((s) => ({
+				data={usable.map((s) => ({
 					label: s.name,
-					value: s.id.toString()
+					value: s.name
 				}))}
 				classes="flex-1 space-y-1"
 				placeholder="Select Switch"

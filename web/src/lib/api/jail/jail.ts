@@ -23,7 +23,7 @@ export async function newJail(data: CreateData): Promise<APIResponse> {
 		description: data.description,
 		dataset: data.storage.dataset,
 		base: data.storage.base,
-		switchId: data.network.switch,
+		switchName: data.network.switch,
 		dhcp: data.network.dhcp,
 		slaac: data.network.slaac,
 		inheritIPv4: data.network.inheritIPv4,
@@ -94,7 +94,7 @@ export async function disinheritHostNetwork(ctId: number): Promise<APIResponse> 
 
 export async function addNetwork(
 	ctId: number,
-	switchId: number,
+	switchName: string,
 	macId: number,
 	ip4: number,
 	ip4gw: number,
@@ -105,7 +105,7 @@ export async function addNetwork(
 ): Promise<APIResponse> {
 	return await apiRequest('/jail/network', APIResponseSchema, 'POST', {
 		ctId,
-		switchId,
+		switchName,
 		macId,
 		ip4,
 		ip4gw,

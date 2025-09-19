@@ -147,7 +147,7 @@
 			base: ''
 		},
 		network: {
-			switch: 0,
+			switch: 'None',
 			mac: 0,
 			inheritIPv4: true,
 			inheritIPv6: true,
@@ -180,8 +180,6 @@
 
 	async function create() {
 		const data = $state.snapshot(modal);
-
-		data.network.switch = data.network.switch < 0 ? 0 : data.network.switch;
 
 		if (data.hardware.resourceLimits === false) {
 			data.hardware.cpuCores = 0;

@@ -35,7 +35,7 @@ type Network struct {
 	AddressObj *networkModels.Object `json:"macObj" gorm:"foreignKey:MacID"`
 
 	SwitchID   uint   `json:"switchId" gorm:"index;not null"`
-	SwitchType string `json:"switchType" gorm:"index;not null"`
+	SwitchType string `json:"switchType" gorm:"index;not null;default:standard"`
 
 	StandardSwitch *networkModels.StandardSwitch `gorm:"-" json:"-"`
 	ManualSwitch   *networkModels.ManualSwitch   `gorm:"-" json:"-"`

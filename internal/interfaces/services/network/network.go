@@ -43,7 +43,7 @@ type NetworkServiceInterface interface {
 	DeleteStandardSwitch(id int) error
 	IsObjectUsed(id uint) (bool, error)
 	GetObjectEntryByID(id uint) (string, error)
-	GetBridgeNameByID(id uint) (string, error)
+	GetBridgeNameByIDType(id uint, swType string) (string, error)
 	CreateEpair(name string) error
 	SyncEpairs() error
 	DeleteEpair(name string) error

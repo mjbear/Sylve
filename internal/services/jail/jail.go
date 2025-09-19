@@ -167,18 +167,38 @@ func (s *Service) ValidateCreate(data jailServiceInterfaces.CreateJailRequest) e
 		return fmt.Errorf("failed_to_find_base_by_uuid: %w", err)
 	}
 
-	switchId := uint(0)
+	swAvailable := true
 	mac := uint(0)
 	dhcp := false
 	slaac := false
 
-	if data.SwitchId != nil {
-		switchId = uint(*data.SwitchId)
+	if data.SwitchName == "" {
+		return fmt.Errorf("switch_name_required")
+	} else if strings.ToLower(data.SwitchName) == "inherit" || strings.ToLower(data.SwitchName) == "none" {
+		swAvailable = false
+	}
+
+	if swAvailable {
+		found := false
+
+		var stdSwitch networkModels.StandardSwitch
+		if err := s.DB.First(&stdSwitch, "name = ?", data.SwitchName).Error; err == nil {
+			found = true
+		}
+
+		var manualSwitch networkModels.ManualSwitch
+		if err := s.DB.First(&manualSwitch, "name = ?", data.SwitchName).Error; err == nil {
+			found = true
+		}
+
+		if !found {
+			return fmt.Errorf("standard_switch_not_found")
+		}
 	}
 
 	if data.MAC != nil {
 		mac = uint(*data.MAC)
-		if mac != 0 && switchId != 0 {
+		if mac != 0 && swAvailable {
 			used, err := s.NetworkService.IsObjectUsed(mac)
 			if err != nil {
 				return fmt.Errorf("failed_to_check_mac_usage: %w", err)
@@ -198,7 +218,7 @@ func (s *Service) ValidateCreate(data jailServiceInterfaces.CreateJailRequest) e
 		slaac = *data.SLAAC
 	}
 
-	if switchId != 0 {
+	if swAvailable {
 		if !dhcp {
 			if data.IPv4 != nil {
 				ipv4Id := uint(*data.IPv4)
@@ -316,7 +336,7 @@ func (s *Service) CreateJailConfig(data jailServiceInterfaces.CreateJailRequest,
 				config += fmt.Sprintf("\texec.prestart += \"ifconfig %s_%sa ether %s up\";\n", ctidHash, networkId, prevMAC)
 				config += fmt.Sprintf("\texec.prestart += \"ifconfig %s_%sb ether %s up\";\n", ctidHash, networkId, mac)
 
-				bridgeName, err := s.NetworkService.GetBridgeNameByID(network.SwitchID)
+				bridgeName, err := s.NetworkService.GetBridgeNameByIDType(network.SwitchID, network.SwitchType)
 
 				if err != nil {
 					return "", fmt.Errorf("failed to get bridge name: %w", err)
@@ -479,19 +499,36 @@ func (s *Service) CreateJail(data jailServiceInterfaces.CreateJailRequest) error
 		jail.Memory = 0
 	}
 
-	if data.SwitchId != nil && *data.SwitchId > 0 {
+	if strings.ToLower(data.SwitchName) != "inherit" && strings.ToLower(data.SwitchName) != "none" {
 		var mac uint
 		if data.MAC != nil {
 			mac = uint(*data.MAC)
 		}
 
-		if mac == 0 {
-			var sw networkModels.StandardSwitch
-			if err := s.DB.Where("id = ?", *data.SwitchId).First(&sw).Error; err != nil {
-				return fmt.Errorf("failed_to_find_switch: %w", err)
-			}
+		swType := ""
+		swName := ""
+		swId := uint(0)
 
-			base := fmt.Sprintf("%s-%s", data.Name, sw.Name)
+		var stdSwitch networkModels.StandardSwitch
+		if err := s.DB.First(&stdSwitch, "name = ?", data.SwitchName).Error; err == nil {
+			swType = "standard"
+			swName = stdSwitch.Name
+			swId = stdSwitch.ID
+		}
+
+		var manualSwitch networkModels.ManualSwitch
+		if err := s.DB.First(&manualSwitch, "name = ?", data.SwitchName).Error; err == nil {
+			swType = "manual"
+			swName = manualSwitch.Name
+			swId = manualSwitch.ID
+		}
+
+		if swType == "" {
+			return fmt.Errorf("switch_not_found: %s", data.SwitchName)
+		}
+
+		if mac == 0 {
+			base := fmt.Sprintf("%s-%s", data.Name, swName)
 			name := base
 
 			for i := 0; ; i++ {
@@ -566,14 +603,15 @@ func (s *Service) CreateJail(data jailServiceInterfaces.CreateJailRequest) error
 		}
 
 		jail.Networks = append(jail.Networks, jailModels.Network{
-			SwitchID: uint(*data.SwitchId),
-			MacID:    &mac,
-			IPv4ID:   ipv4Id,
-			IPv4GwID: ipv4GwId,
-			IPv6ID:   ipv6Id,
-			IPv6GwID: ipv6GwId,
-			DHCP:     dhcp,
-			SLAAC:    slaac,
+			SwitchID:   swId,
+			SwitchType: swType,
+			MacID:      &mac,
+			IPv4ID:     ipv4Id,
+			IPv4GwID:   ipv4GwId,
+			IPv6ID:     ipv6Id,
+			IPv6GwID:   ipv6GwId,
+			DHCP:       dhcp,
+			SLAAC:      slaac,
 		})
 	}
 
@@ -718,41 +756,46 @@ func (s *Service) DeleteJail(ctId uint, deleteMacs bool) error {
 		return fmt.Errorf("failed_to_remove_jail_directory: %w", err)
 	}
 
+	fsDestroyed := false
+
 	if err := dataset.Destroy(zfs.DestroyRecursive); err != nil {
 		logger.L.Error().Err(err).Msg("delete_jail: failed to destroy dataset")
-		return fmt.Errorf("failed_to_destroy_dataset: %w", err)
+	} else {
+		fsDestroyed = true
 	}
 
-	allowedProps := map[string]struct{}{
-		"atime":       {},
-		"checksum":    {},
-		"compression": {},
-		"dedup":       {},
-		"encryption":  {},
-		"aclinherit":  {},
-		"aclmode":     {},
-		"keylocation": {},
-		"quota":       {},
-	}
-
-	props := make(map[string]string)
-	for k, v := range dProps {
-		if _, ok := allowedProps[strings.ToLower(k)]; ok {
-			if k == "quota" && v == "0" || v == "" || v == "-" {
-				continue
-			}
-
-			props[strings.ToLower(k)] = v
+	if fsDestroyed {
+		allowedProps := map[string]struct{}{
+			"atime":       {},
+			"checksum":    {},
+			"compression": {},
+			"dedup":       {},
+			"encryption":  {},
+			"aclinherit":  {},
+			"aclmode":     {},
+			"keylocation": {},
+			"quota":       {},
 		}
-	}
 
-	newDataset, err := zfs.CreateFilesystem(dataset.Name, props)
-	if err != nil {
-		return fmt.Errorf("failed_to_create_new_dataset: %w", err)
-	}
+		props := make(map[string]string)
+		for k, v := range dProps {
+			if _, ok := allowedProps[strings.ToLower(k)]; ok {
+				if k == "quota" && v == "0" || v == "" || v == "-" {
+					continue
+				}
 
-	if newDataset == nil {
-		return fmt.Errorf("new_dataset_is_nil")
+				props[strings.ToLower(k)] = v
+			}
+		}
+
+		newDataset, err := zfs.CreateFilesystem(dataset.Name, props)
+		if err != nil {
+			return fmt.Errorf("failed_to_create_new_dataset: %w", err)
+		}
+
+		if newDataset == nil {
+			return fmt.Errorf("new_dataset_is_nil")
+		}
 	}
 
 	if deleteMacs {

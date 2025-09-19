@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2025-07-19T15:13:43.695Z\n"
-"PO-Revision-Date: 2025-09-18T21:02:19.046Z\n"
+"PO-Revision-Date: 2025-09-19T12:56:14.787Z\n"
 "Last-Translator: \n"
 "Language: 简体中文\n"
 "Language-Team: \n"
@@ -22,8 +22,6 @@ msgstr "<0/> 创建虚拟机"
 #: src/lib/components/custom/ZFS/datasets/snapshots/Rollback.svelte
 #: src/lib/components/custom/Jail/Create/CreateJail.svelte
 #: src/lib/components/custom/Jail/Create/CreateJail.svelte
-#: src/lib/components/custom/VM/Create/CreateVM.svelte
-#: src/lib/components/custom/VM/Create/CreateVM.svelte
 #: src/routes/datacenter/notes/+page.svelte
 #: src/routes/datacenter/notes/+page.svelte
 #: src/lib/components/custom/Samba/Share.svelte
@@ -98,6 +96,8 @@ msgstr "<0/> 创建虚拟机"
 #: src/lib/components/custom/Network/Switch/Manual/Create.svelte
 #: src/lib/components/custom/VM/Hardware/Network.svelte
 #: src/lib/components/custom/VM/Hardware/Network.svelte
+#: src/lib/components/custom/VM/Create/CreateVM.svelte
+#: src/lib/components/custom/VM/Create/CreateVM.svelte
 msgid "Reset"
 msgstr "重置"
 
@@ -108,8 +108,6 @@ msgstr "重置"
 #: src/lib/components/custom/Terminal.svelte
 #: src/lib/components/custom/Jail/Create/CreateJail.svelte
 #: src/lib/components/custom/Jail/Create/CreateJail.svelte
-#: src/lib/components/custom/VM/Create/CreateVM.svelte
-#: src/lib/components/custom/VM/Create/CreateVM.svelte
 #: src/lib/components/ui/sheet/sheet-content.svelte
 #: src/lib/components/ui/dialog/dialog-content.svelte
 #: src/routes/datacenter/notes/+page.svelte
@@ -194,6 +192,8 @@ msgstr "重置"
 #: src/lib/components/custom/Network/Switch/Manual/Create.svelte
 #: src/lib/components/custom/VM/Hardware/Network.svelte
 #: src/lib/components/custom/VM/Hardware/Network.svelte
+#: src/lib/components/custom/VM/Create/CreateVM.svelte
+#: src/lib/components/custom/VM/Create/CreateVM.svelte
 msgid "Close"
 msgstr "关闭"
 
@@ -326,9 +326,9 @@ msgstr "选择仿真类型"
 
 #: src/routes/[node]/network/interfaces/+page.svelte
 #: src/routes/[node]/jail/[node]/network/+page.svelte
+#: src/lib/components/custom/VM/Create/Network.svelte
 #: src/routes/[node]/vm/[node]/network/+page.svelte
 #: src/lib/components/custom/Jail/Create/Network.svelte
-#: src/lib/components/custom/VM/Create/Network.svelte
 msgid "MAC Address"
 msgstr "MAC 地址"
 
@@ -366,6 +366,7 @@ msgstr "选择安装介质"
 
 #: src/lib/components/custom/VM/Create/Storage.svelte
 #: src/lib/components/custom/VM/Create/Storage.svelte
+#: src/lib/components/custom/Jail/Create/Network.svelte
 msgid "None"
 msgstr "无<<<<<<< HEAD"
 
@@ -764,8 +765,8 @@ msgid "Select MAC address"
 msgstr ""
 
 #: src/lib/components/custom/VM/Hardware/Network.svelte
-#: src/lib/components/custom/Jail/Create/Network.svelte
 #: src/lib/components/custom/VM/Create/Network.svelte
+#: src/lib/components/custom/Jail/Create/Network.svelte
 msgid "Mac"
 msgstr ""
 
@@ -781,8 +782,8 @@ msgstr ""
 msgid "Jail ID"
 msgstr ""
 
-#: src/lib/components/custom/Jail/Create/Network.svelte
 #: src/lib/components/custom/VM/Create/Network.svelte
+#: src/lib/components/custom/Jail/Create/Network.svelte
 msgid "No network switch will be allocated now, you can add it later"
 msgstr ""
 
@@ -790,8 +791,8 @@ msgstr ""
 msgid "Inherit network from the host"
 msgstr ""
 
-#: src/lib/components/custom/Jail/Create/Network.svelte
 #: src/lib/components/custom/VM/Create/Network.svelte
+#: src/lib/components/custom/Jail/Create/Network.svelte
 msgid "Standard switch"
 msgstr ""
 
@@ -3939,5 +3940,10 @@ msgid "Manual switch created"
 msgstr ""
 
 #: src/lib/components/custom/VM/Create/Network.svelte
+#: src/lib/components/custom/Jail/Create/Network.svelte
 msgid "Manual switch"
+msgstr ""
+
+#: src/lib/components/custom/Jail/Create/Network.svelte
+msgid "Inherit"
 msgstr ""

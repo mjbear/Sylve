@@ -24,15 +24,15 @@ type JailInheritNetworkRequest struct {
 }
 
 type AddNetworkRequest struct {
-	CTID     uint  `json:"ctId" binding:"required"`
-	SwitchID uint  `json:"switchId" binding:"required"`
-	MacID    *uint `json:"macId"`
-	IP4      *uint `json:"ip4"`
-	IP4GW    *uint `json:"ip4gw"`
-	IP6      *uint `json:"ip6"`
-	IP6GW    *uint `json:"ip6gw"`
-	DHCP     *bool `json:"dhcp"`
-	SLAAC    *bool `json:"slaac"`
+	CTID       uint   `json:"ctId" binding:"required"`
+	SwitchName string `json:"switchName" binding:"required"`
+	MacID      *uint  `json:"macId"`
+	IP4        *uint  `json:"ip4"`
+	IP4GW      *uint  `json:"ip4gw"`
+	IP6        *uint  `json:"ip6"`
+	IP6GW      *uint  `json:"ip6gw"`
+	DHCP       *bool  `json:"dhcp"`
+	SLAAC      *bool  `json:"slaac"`
 }
 
 // @Summary Update Jail to Inherit Hosts Network
@@ -212,7 +212,7 @@ func AddNetwork(jailService *jail.Service) gin.HandlerFunc {
 			macId = *req.MacID
 		}
 
-		err := jailService.AddNetwork(req.CTID, req.SwitchID, macId, ipv4, ipv4gw, ipv6, ipv6gw, dhcp, slaac)
+		err := jailService.AddNetwork(req.CTID, req.SwitchName, macId, ipv4, ipv4gw, ipv6, ipv6gw, dhcp, slaac)
 		if err != nil {
 			c.JSON(500, internal.APIResponse[any]{
 				Status:  "error",

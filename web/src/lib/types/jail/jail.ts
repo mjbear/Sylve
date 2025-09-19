@@ -10,7 +10,7 @@ export interface CreateData {
 		base: string;
 	};
 	network: {
-		switch: number;
+		switch: string;
 		mac: number;
 		inheritIPv4: boolean;
 		inheritIPv6: boolean;
@@ -40,6 +40,7 @@ export const SimpleJailSchema = z.object({
 export const NetworkSchema = z.object({
 	id: z.number().int(),
 	switchId: z.number().int(),
+	switchType: z.enum(['standard', 'manual']),
 	macId: z.number().int().nullable(),
 	ipv4Id: z.number().int().nullable(),
 	ipv4GwId: z.number().int().nullable(),

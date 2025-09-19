@@ -160,7 +160,7 @@
 	let activeRow: Row | null = $derived(activeRows ? (activeRows[0] as Row) : ({} as Row));
 	let query = $state('');
 	let usable = $derived.by(() => {
-		return switches.standard?.filter((s) => {
+		return [...(switches.standard || []), ...(switches.manual || [])].filter((s) => {
 			return !vm?.networks.some((n) => n.switchId === s.id);
 		});
 	});

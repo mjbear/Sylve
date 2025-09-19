@@ -49,7 +49,7 @@ func (s *Service) InheritNetwork(ctId uint, ipv4 bool, ipv6 bool) error {
 }
 
 func (s *Service) AddNetwork(ctId uint,
-	switchId uint,
+	switchName string,
 	macId uint,
 	ip4 uint,
 	ip4gw uint,
@@ -68,13 +68,54 @@ func (s *Service) AddNetwork(ctId uint,
 		return fmt.Errorf("cannot_add_network_when_inheriting_network")
 	}
 
+	existing := false
+
 	for _, network := range jail.Networks {
-		if network.SwitchID == switchId {
-			return fmt.Errorf("switch_id_already_used_by_jail")
+		if err := network.AfterFind(s.DB); err != nil {
+			return err
+		}
+
+		if network.StandardSwitch != nil {
+			if network.StandardSwitch.Name == switchName {
+				existing = true
+			}
+		}
+
+		if network.ManualSwitch != nil {
+			if network.ManualSwitch.Name == switchName {
+				existing = true
+			}
 		}
 	}
 
+	if existing {
+		return fmt.Errorf("network_with_same_switch_already_exists")
+	}
+
+	switchId := uint(0)
+	switchType := ""
+	dbSwName := ""
+
+	var stdSwitch networkModels.StandardSwitch
+	if err := s.DB.Where("name = ?", switchName).First(&stdSwitch).Error; err == nil {
+		switchId = stdSwitch.ID
+		switchType = "standard"
+		dbSwName = stdSwitch.Name
+	} else {
+		var manualSwitch networkModels.ManualSwitch
+		if err := s.DB.Where("name = ?", switchName).First(&manualSwitch).Error; err == nil {
+			switchId = manualSwitch.ID
+			switchType = "manual"
+			dbSwName = manualSwitch.Name
+		}
+	}
+
+	if switchType == "" || switchId == 0 {
+		return fmt.Errorf("switch_not_found")
+	}
+
 	network.SwitchID = switchId
+	network.SwitchType = switchType
 
 	if !dhcp {
 		if ip4 == 0 || ip4gw == 0 {
@@ -117,13 +158,8 @@ func (s *Service) AddNetwork(ctId uint,
 	}
 
 	if macId == 0 {
-		var sw networkModels.StandardSwitch
-		if err := s.DB.First(&sw, "id = ?", switchId).Error; err != nil {
-			return fmt.Errorf("failed_to_find_switch: %w", err)
-		}
-
 		macAddress := utils.GenerateRandomMAC()
-		base := fmt.Sprintf("%s-%s", jail.Name, sw.Name)
+		base := fmt.Sprintf("%s-%s", jail.Name, dbSwName)
 		name := base
 
 		for i := 0; ; i++ {
@@ -333,7 +369,7 @@ func (s *Service) SyncNetwork(ctId uint, jail jailModels.Jail, save bool) error 
 					b.WriteString(fmt.Sprintf("\texec.prestart += \"ifconfig %s_%da ether %s up\";\n", ctidHash, networkId, prevMAC))
 					b.WriteString(fmt.Sprintf("\texec.prestart += \"ifconfig %s_%db ether %s up\";\n", ctidHash, networkId, mac))
 
-					bridgeName, err := s.NetworkService.GetBridgeNameByID(n.SwitchID)
+					bridgeName, err := s.NetworkService.GetBridgeNameByIDType(n.SwitchID, n.SwitchType)
 					if err != nil {
 						return fmt.Errorf("failed to get bridge name: %w", err)
 					}

@@ -15,7 +15,7 @@
 	import CustomCheckbox from '$lib/components/ui/custom-input/checkbox.svelte';
 
 	interface Props {
-		switch: number;
+		switch: string;
 		mac: number;
 		inheritIPv4: boolean;
 		inheritIPv6: boolean;
@@ -98,16 +98,9 @@
 		slaac: false
 	});
 
-	let swStr = $state('');
-
-	onMount(() => {
-		swStr = nwSwitch.toString();
-	});
-
 	$effect(() => {
-		if (swStr) {
-			nwSwitch = parseInt(swStr) || 0;
-			if (nwSwitch === 0) {
+		if (nwSwitch) {
+			if (nwSwitch === 'None') {
 				mac = 0;
 				ipv4 = 0;
 				ipv6 = 0;
@@ -117,13 +110,15 @@
 				checkBoxes.slaac = false;
 			}
 
-			if (nwSwitch !== -1) {
+			if (nwSwitch !== 'Inherit') {
 				inheritIPv4 = false;
 				inheritIPv6 = false;
 			}
 		}
 
 		if (checkBoxes.dhcp) {
+			console.log('dhcp checked');
+
 			comboBoxes.ipv4.value = '0';
 			comboBoxes.ipv4Gateway.value = '0';
 			dhcp = true;
@@ -177,19 +172,25 @@
 	});
 </script>
 
-{#snippet radioItem(id: number, name: string)}
+{#snippet radioItem(
+	id: number,
+	name: string,
+	type: 'standard' | 'manual' | 'inherit' | 'none' = 'standard'
+)}
 	{@const i = `radio-${id}`}
 	<div class="mb-2 flex items-center space-x-3 rounded-lg border p-4">
-		<RadioGroup.Item value={id.toString()} id={i} />
+		<RadioGroup.Item value={name} id={i} />
 		<Label for={i} class="flex flex-col items-start gap-2">
 			<p class="">{name}</p>
 			<p class="text-muted-foreground text-sm">
-				{#if id === 0}
-					No network switch will be allocated now, you can add it later
-				{:else if id === -1}
-					Inherit network from the host
-				{:else}
+				{#if type === 'standard'}
 					Standard switch
+				{:else if type === 'manual'}
+					Manual switch
+				{:else if type === 'inherit'}
+					Inherit network from the host
+				{:else if type === 'none'}
+					No network switch will be allocated now, you can add it later
 				{/if}
 			</p>
 		</Label>
@@ -197,19 +198,26 @@
 {/snippet}
 
 <div class="flex flex-col gap-4 p-4">
-	<RadioGroup.Root bind:value={swStr} class="border p-2">
+	<RadioGroup.Root bind:value={nwSwitch} class="border p-2">
 		<ScrollArea orientation="vertical" class="h-64 w-full max-w-full">
 			{#if switches && switches.standard}
 				{#each switches.standard ?? [] as sw}
-					{@render radioItem(sw.id, sw.name)}
+					{@render radioItem(sw.id, sw.name, 'standard')}
 				{/each}
 			{/if}
-			{@render radioItem(-1, 'Inherit')}
-			{@render radioItem(0, 'None')}
+
+			{#if switches && switches.manual}
+				{#each switches.manual ?? [] as sw}
+					{@render radioItem(sw.id, sw.name, 'manual')}
+				{/each}
+			{/if}
+
+			{@render radioItem(-1, 'Inherit', 'inherit')}
+			{@render radioItem(0, 'None', 'none')}
 		</ScrollArea>
 	</RadioGroup.Root>
 
-	{#if swStr !== '0' && swStr !== '-1'}
+	{#if nwSwitch !== 'None' && nwSwitch !== 'Inherit'}
 		<div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
 			<CustomComboBox
 				bind:open={comboBoxes.ipv4.open}
@@ -275,7 +283,7 @@
 				classes="flex items-center gap-2"
 			></CustomCheckbox>
 		</div>
-	{:else if swStr === '-1'}
+	{:else if nwSwitch === 'Inherit'}
 		<div class="mt-1 flex flex-row gap-4">
 			<CustomCheckbox label="IPv4" bind:checked={inheritIPv4} classes="flex items-center gap-2"
 			></CustomCheckbox>
