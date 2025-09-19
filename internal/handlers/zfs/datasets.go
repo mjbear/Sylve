@@ -69,6 +69,13 @@ type FlashVolumeRequest struct {
 	UUID string `json:"uuid" binding:"required"`
 }
 
+type DatasetListResponse struct {
+	Status  string                          `json:"status"`
+	Message string                          `json:"message"`
+	Error   string                          `json:"error"`
+	Data    []*zfsServiceInterfaces.Dataset `json:"data"`
+}
+
 // @Summary Get all ZFS datasets
 // @Description Get all ZFS datasets
 // @Tags ZFS
@@ -76,7 +83,7 @@ type FlashVolumeRequest struct {
 // @Produce json
 // @Security BearerAuth
 // @Param type query string false "Filter for datasets"
-// @Success 200 {object} internal.APIResponse[[]*zfsServiceInterfaces.Dataset] "OK"
+// @Success 200 {object} DatasetListResponse "OK"
 // @Failure 500 {object} internal.APIResponse[any] "Internal Server Error"
 // @Router /zfs/datasets [get]
 func GetDatasets(zfsService *zfs.Service) gin.HandlerFunc {
