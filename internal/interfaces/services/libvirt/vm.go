@@ -16,8 +16,8 @@ type CreateVMRequest struct {
 	Description          string  `json:"description"`
 	ISO                  string  `json:"iso"`
 	StorageType          string  `json:"storageType" binding:"required"`
-	StorageDataset       string  `json:"storageDataset" binding:"required"`
-	StorageSize          *uint64 `json:"storageSize" binding:"required"`
+	StorageDataset       string  `json:"storageDataset"`
+	StorageSize          *uint64 `json:"storageSize"`
 	StorageEmulationType string  `json:"storageEmulationType"`
 	SwitchName           string  `json:"switchName"`
 	SwitchEmulationType  string  `json:"switchEmulationType"`
