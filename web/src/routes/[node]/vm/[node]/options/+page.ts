@@ -7,7 +7,7 @@ export async function load({ params }) {
 	const cacheDuration = SEVEN_DAYS;
 	const [vms, domain] = await Promise.all([
 		cachedFetch('vm-list', async () => await getVMs(), cacheDuration),
-		cachedFetch(`vmDomain-${vmId}`, async () => await getVMDomain(vmId), cacheDuration)
+		cachedFetch(`vm-domain-${vmId}`, async () => await getVMDomain(vmId), cacheDuration)
 	]);
 
 	const vm = vms.find((vm) => vm.vmId === vmId);

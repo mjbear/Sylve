@@ -25,6 +25,10 @@ type ModifyBootOrderRequest struct {
 	BootOrder   *int  `json:"bootOrder"`
 }
 
+type ModifyClockRequest struct {
+	TimeOffset string `json:"timeOffset"`
+}
+
 // @Summary Modify Wake-on-LAN of a Virtual Machine
 // @Description Modify the Wake-on-LAN configuration of a virtual machine
 // @Tags VM
@@ -164,6 +168,81 @@ func ModifyBootOrder(libvirtService *libvirt.Service) gin.HandlerFunc {
 		c.JSON(200, internal.APIResponse[any]{
 			Status:  "success",
 			Message: "boot_order_modified",
+			Data:    nil,
+			Error:   "",
+		})
+	}
+}
+
+// @Summary Modify Clock of a Virtual Machine
+// @Description Modify the Clock configuration of a virtual machine
+// @Tags VM
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body ModifyClockRequest true "Modify Clock Request"
+// @Success 200 {object} internal.APIResponse[any] "Success"
+// @Failure 400 {object} internal.APIResponse[any] "Bad Request"
+// @Failure 500 {object} internal.APIResponse[any] "Internal Server Error"
+// @Router /options/clock/:vmid [put]
+func ModifyClock(libvirtService *libvirt.Service) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		vmId := c.Param("vmid")
+		if vmId == "" {
+			c.JSON(400, internal.APIResponse[any]{
+				Status:  "error",
+				Message: "invalid_request",
+				Data:    nil,
+				Error:   "vmid_not_provided",
+			})
+			return
+		}
+
+		vmIdInt, err := strconv.Atoi(vmId)
+		if err != nil {
+			c.JSON(400, internal.APIResponse[any]{
+				Status:  "error",
+				Message: "invalid_request",
+				Data:    nil,
+				Error:   "invalid_vmid_format",
+			})
+			return
+		}
+
+		var req ModifyClockRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(400, internal.APIResponse[any]{
+				Status:  "error",
+				Message: "invalid_request",
+				Data:    nil,
+				Error:   "invalid_request: " + err.Error(),
+			})
+			return
+		}
+
+		if req.TimeOffset == "" {
+			c.JSON(400, internal.APIResponse[any]{
+				Status:  "error",
+				Message: "invalid_request",
+				Data:    nil,
+				Error:   "time_offset_not_provided",
+			})
+			return
+		}
+
+		if err := libvirtService.ModifyClock(vmIdInt, req.TimeOffset); err != nil {
+			c.JSON(500, internal.APIResponse[any]{
+				Status:  "error",
+				Message: "internal_server_error",
+				Data:    nil,
+				Error:   err.Error(),
+			})
+			return
+		}
+
+		c.JSON(200, internal.APIResponse[any]{
+			Status:  "success",
+			Message: "clock_modified",
 			Data:    nil,
 			Error:   "",
 		})

@@ -91,6 +91,7 @@ type VM struct {
 	TPMEmulation  bool   `json:"tpmEmulation"`
 	StartOrder    int    `json:"startOrder"`
 	WoL           bool   `json:"wol" gorm:"default:false"`
+	TimeOffset    string `json:"timeOffset" gorm:"default:'utc'"`
 
 	ISO        string    `json:"iso"`
 	Storages   []Storage `json:"storages" gorm:"foreignKey:VMID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`

@@ -35,6 +35,7 @@ type CreateVMRequest struct {
 	StartAtBoot          *bool   `json:"startAtBoot" binding:"required"`
 	TPMEmulation         *bool   `json:"tpmEmulation" binding:"required"`
 	StartOrder           int     `json:"startOrder"`
+	TimeOffset           string  `json:"timeOffset" binding:"required,oneof='utc' 'localtime'"`
 }
 
 type Memory struct {

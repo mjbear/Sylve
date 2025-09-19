@@ -8,7 +8,13 @@
 
 package libvirt
 
-import vmModels "github.com/alchemillahq/sylve/internal/db/models/vm"
+import (
+	"fmt"
+	"strconv"
+
+	vmModels "github.com/alchemillahq/sylve/internal/db/models/vm"
+	"github.com/beevik/etree"
+)
 
 func (s *Service) ModifyWakeOnLan(vmId int, enabled bool) error {
 	err := s.DB.
@@ -27,4 +33,72 @@ func (s *Service) ModifyBootOrder(vmId int, startAtBoot bool, bootOrder int) err
 			"start_at_boot": startAtBoot,
 		}).Error
 	return err
+}
+
+func (s *Service) ModifyClock(vmId int, timeOffset string) error {
+	if timeOffset != "utc" && timeOffset != "localtime" {
+		return fmt.Errorf("invalid_time_offset: %s", timeOffset)
+	}
+
+	domain, err := s.Conn.DomainLookupByName(strconv.Itoa(vmId))
+	if err != nil {
+		return fmt.Errorf("failed_to_lookup_domain_by_name: %w", err)
+	}
+
+	state, _, err := s.Conn.DomainGetState(domain, 0)
+	if err != nil {
+		return fmt.Errorf("failed_to_get_domain_state: %w", err)
+	}
+
+	if state != 5 {
+		return fmt.Errorf("domain_state_not_shutoff: %d", vmId)
+	}
+
+	xml, err := s.Conn.DomainGetXMLDesc(domain, 0)
+	if err != nil {
+		return fmt.Errorf("failed_to_get_domain_xml_desc: %w", err)
+	}
+
+	doc := etree.NewDocument()
+	if err := doc.ReadFromString(xml); err != nil {
+		return fmt.Errorf("failed_to_parse_xml: %w", err)
+	}
+
+	root := doc.Root()
+	if root == nil {
+		return fmt.Errorf("invalid_domain_xml: root_missing")
+	}
+
+	clockEl := doc.FindElement("//clock")
+	if clockEl == nil {
+		clockEl = root.CreateElement("clock")
+	}
+
+	attr := clockEl.SelectAttr("offset")
+	if attr == nil {
+		clockEl.CreateAttr("offset", timeOffset)
+	} else {
+		attr.Value = timeOffset
+	}
+
+	out, err := doc.WriteToString()
+	if err != nil {
+		return fmt.Errorf("failed_to_serialize_xml: %w", err)
+	}
+
+	if err := s.Conn.DomainUndefineFlags(domain, 0); err != nil {
+		return fmt.Errorf("failed_to_undefine_domain: %w", err)
+	}
+	if _, err := s.Conn.DomainDefineXML(out); err != nil {
+		return fmt.Errorf("failed_to_define_domain_with_modified_xml: %w", err)
+	}
+
+	if err := s.DB.
+		Model(&vmModels.VM{}).
+		Where("vm_id = ?", vmId).
+		Update("time_offset", timeOffset).Error; err != nil {
+		return fmt.Errorf("failed_to_update_time_offset_in_db: %w", err)
+	}
+
+	return nil
 }

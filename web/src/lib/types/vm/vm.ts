@@ -34,6 +34,7 @@ export interface CreateData {
 		startAtBoot: boolean;
 		bootOrder: number;
 		tpmEmulation: boolean;
+		timeOffset: 'utc' | 'localtime';
 	};
 }
 
@@ -76,6 +77,7 @@ export const VMSchema = z.object({
 	startAtBoot: z.boolean(),
 	startOrder: z.number().int(),
 	wol: z.boolean(),
+	timeOffset: z.enum(['utc', 'localtime']),
 
 	state: z.enum(['ACTIVE', 'INACTIVE']),
 

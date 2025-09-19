@@ -229,7 +229,8 @@
 			vncResolution: '1024x768',
 			startAtBoot: false,
 			bootOrder: 0,
-			tpmEmulation: false
+			tpmEmulation: false,
+			timeOffset: 'utc' as 'utc' | 'localtime'
 		}
 	};
 
@@ -360,6 +361,7 @@
 									bind:bootOrder={modal.advanced.bootOrder}
 									bind:vncResolution={modal.advanced.vncResolution}
 									bind:tpmEmulation={modal.advanced.tpmEmulation}
+									bind:timeOffset={modal.advanced.timeOffset}
 								/>
 							{/if}
 						</div>

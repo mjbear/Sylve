@@ -47,7 +47,8 @@ export async function newVM(data: CreateData): Promise<APIResponse> {
 		tpmEmulation: data.advanced.tpmEmulation,
 		bootOrder: parseInt(data.advanced.bootOrder.toString(), 10),
 		pciDevices: data.hardware.passthroughIds,
-		description: data.description
+		description: data.description,
+		timeOffset: data.advanced.timeOffset
 	});
 }
 
@@ -88,5 +89,14 @@ export async function modifyBootOrder(
 	return await apiRequest(`/vm/options/boot-order/${vmid}`, APIResponseSchema, 'PUT', {
 		startAtBoot,
 		bootOrder
+	});
+}
+
+export async function modifyClockOffset(
+	vmid: number,
+	timeOffset: 'localtime' | 'utc'
+): Promise<APIResponse> {
+	return await apiRequest(`/vm/options/clock/${vmid}`, APIResponseSchema, 'PUT', {
+		timeOffset
 	});
 }

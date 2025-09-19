@@ -36,7 +36,7 @@
 
 <div class={`${classes}`}>
 	{#if label}
-		<Label class="w-full whitespace-nowrap text-sm" for={nanoId}>
+		<Label class="mt w-full whitespace-nowrap text-sm" for={nanoId}>
 			<!-- {labelHTML ? {@html label} : label} -->
 			{#if labelHTML}
 				{@html label}

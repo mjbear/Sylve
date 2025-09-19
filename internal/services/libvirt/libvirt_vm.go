@@ -235,7 +235,7 @@ func (s *Service) CreateVmXML(vm vmModels.VM, vmPath string) (string, error) {
 			APIC: struct{}{},
 		},
 		Clock: libvirtServiceInterfaces.Clock{
-			Offset: "utc",
+			Offset: vm.TimeOffset,
 		},
 		OnPoweroff: "destroy",
 		OnReboot:   "restart",

@@ -343,6 +343,10 @@ func validateCreate(data libvirtServiceInterfaces.CreateVMRequest, db *gorm.DB) 
 		}
 	}
 
+	if data.TimeOffset != "utc" && data.TimeOffset != "localtime" {
+		return fmt.Errorf("invalid_time_offset")
+	}
+
 	return nil
 }
 
@@ -536,6 +540,7 @@ func (s *Service) CreateVM(data libvirtServiceInterfaces.CreateVMRequest) error 
 		ISO:           data.ISO,
 		Storages:      storages,
 		Networks:      networks,
+		TimeOffset:    data.TimeOffset,
 	}
 
 	if err := s.DB.

@@ -1,7 +1,10 @@
 <script lang="ts">
 	import Button from '$lib/components/ui/button/button.svelte';
 	import CustomCheckbox from '$lib/components/ui/custom-input/checkbox.svelte';
-	import CustomComboBox from '$lib/components/ui/custom-input/combobox.svelte';
+	import {
+		default as ComboBox,
+		default as CustomComboBox
+	} from '$lib/components/ui/custom-input/combobox.svelte';
 	import CustomValueInput from '$lib/components/ui/custom-input/value.svelte';
 	import Input from '$lib/components/ui/input/input.svelte';
 	import Label from '$lib/components/ui/label/label.svelte';
@@ -18,6 +21,7 @@
 		startAtBoot: boolean;
 		bootOrder: number;
 		tpmEmulation: boolean;
+		timeOffset: 'utc' | 'localtime';
 	}
 
 	let {
@@ -27,12 +31,19 @@
 		vncResolution = $bindable(),
 		startAtBoot = $bindable(),
 		bootOrder = $bindable(),
-		tpmEmulation = $bindable()
+		tpmEmulation = $bindable(),
+		timeOffset = $bindable()
 	}: Props = $props();
 
 	onMount(() => {
 		vncPort = Math.floor(Math.random() * (5999 - 5900 + 1)) + 5900;
 	});
+
+	let timeOffsetOpen = $state(false);
+	const timeOffsets = [
+		{ label: 'UTC', value: 'utc' },
+		{ label: 'Local Time', value: 'localtime' }
+	];
 
 	let resolutionOpen = $state(false);
 	const resolutions = [
@@ -95,12 +106,23 @@
 			width="w-full"
 		></CustomComboBox>
 
+		<ComboBox
+			bind:open={timeOffsetOpen}
+			label="Clock Offset"
+			bind:value={timeOffset}
+			data={timeOffsets}
+			classes="flex-1 space-y-1.5"
+			placeholder="Select Time Offset"
+			triggerWidth="w-full"
+			width="w-full"
+		></ComboBox>
+
 		<CustomValueInput
 			label="Startup/Shutdown Order"
 			placeholder="0"
 			type="number"
 			bind:value={bootOrder}
-			classes="flex-1 space-y-1"
+			classes="flex-1 space-y-1.5"
 		/>
 	</div>
 
