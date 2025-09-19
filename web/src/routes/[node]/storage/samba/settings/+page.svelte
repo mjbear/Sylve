@@ -112,7 +112,6 @@
 					const row = cell.getRow();
 					const property = row.getData().property;
 					const value = cell.getValue();
-					console.log('Property:', property);
 
 					if (property === 'Interfaces') {
 						const value = cell.getValue();

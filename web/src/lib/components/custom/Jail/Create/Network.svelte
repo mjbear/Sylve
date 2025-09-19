@@ -117,8 +117,6 @@
 		}
 
 		if (checkBoxes.dhcp) {
-			console.log('dhcp checked');
-
 			comboBoxes.ipv4.value = '0';
 			comboBoxes.ipv4Gateway.value = '0';
 			dhcp = true;

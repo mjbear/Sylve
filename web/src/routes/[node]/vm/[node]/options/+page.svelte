@@ -59,7 +59,6 @@
 				title: 'Value',
 				field: 'value',
 				formatter: (cell: CellComponent) => {
-					console.log(cell.getData());
 					const value = cell.getValue();
 					if (isBoolean(value)) {
 						if (value === true || value === 'true') {

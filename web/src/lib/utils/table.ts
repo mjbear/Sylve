@@ -21,7 +21,6 @@ import { iconCache } from './icons';
 export function deselectAllRows(table: Tabulator | null) {
 	if (table) {
 		table.getRows().forEach((row) => {
-			console.log(row);
 			row.deselect();
 		});
 	}

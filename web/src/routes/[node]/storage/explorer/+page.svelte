@@ -494,12 +494,9 @@
 	actions={{
 		onConfirm: async () => {
 			if (modals.delete.item) {
-				console.log('Selected items for deletion:', selectedItems);
-				console.log('delete item:', modals.delete.item);
-
 				const response = await deleteFilesOrFolders(selectedItems);
-
 				const single = selectedItems.length === 1 && modals.delete.item;
+
 				handleAPIResponse(response, {
 					success: single
 						? `${modals.delete.item.type === 'folder' ? 'Folder' : 'File'} "${modals.delete.item.id.split('/').pop() || ''}" was deleted successfully.`

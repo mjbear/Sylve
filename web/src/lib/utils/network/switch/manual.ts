@@ -23,7 +23,6 @@ export function generateTableData(switches: SwitchList | undefined): {
 
 	const rows: Row[] = [];
 	if (switches && switches['manual']) {
-		console.log(switches['manual']);
 		for (const sw of switches['manual']) {
 			const row: Row = {
 				id: sw.id,
