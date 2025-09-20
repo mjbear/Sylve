@@ -176,7 +176,7 @@
 				properties.type,
 				properties.dataset,
 				properties.emulation,
-				parsedSize,
+				Math.floor(parsedSize),
 				properties.name
 			);
 

@@ -487,8 +487,12 @@ func (s *Service) CreateVM(data libvirtServiceInterfaces.CreateVMRequest) error 
 	}
 
 	var storages []vmModels.Storage
-	if data.StorageType != "" {
+	if data.StorageType != "" && data.StorageType != "none" {
 		if data.StorageSize != nil && data.StorageType == "zvol" {
+			*data.StorageSize = 0
+		}
+
+		if data.StorageType == "none" {
 			*data.StorageSize = 0
 		}
 
