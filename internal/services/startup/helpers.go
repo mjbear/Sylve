@@ -94,15 +94,17 @@ func (s *Service) CheckPackageDependencies() error {
 	var wg sync.WaitGroup
 	errCh := make(chan error, len(requiredPackages))
 
-	installCmd := fmt.Sprintf("pkg install %s", strings.Join(requiredPackages, " "))
-
 	for _, p := range requiredPackages {
 		p := p
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			if !pkg.IsPackageInstalled(p) {
-				errCh <- fmt.Errorf("Required package %s is not installed, run the command '%s' to install all required packages", p, installCmd)
+				errCh <- fmt.Errorf(
+					"Required package %s is not installed, run the command" +
+					" 'pkg install %s' to install all required packages",
+					p, strings.Join(requiredPackages, " "),
+				)
 			}
 		}()
 	}
