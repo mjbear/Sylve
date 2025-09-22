@@ -92,6 +92,15 @@ func validateCreate(data libvirtServiceInterfaces.CreateVMRequest, db *gorm.DB) 
 		return fmt.Errorf("invalid_vm_id")
 	}
 
+	count, err := sdb.Count(db, &vmModels.VM{}, "vm_id = ?", *data.VMID)
+	if err != nil {
+		return fmt.Errorf("failed_to_check_vmid_usage: %w", err)
+	}
+
+	if count > 0 {
+		return fmt.Errorf("vm_id_already_in_use")
+	}
+
 	if data.Description != "" && (len(data.Description) < 1 || len(data.Description) > 1024) {
 		return fmt.Errorf("invalid_description")
 	}
@@ -122,7 +131,39 @@ func validateCreate(data libvirtServiceInterfaces.CreateVMRequest, db *gorm.DB) 
 			if data.StorageType == "zvol" {
 				return fmt.Errorf("storage_dataset_zvol_already_in_use")
 			} else if data.StorageType == "raw" {
-				return fmt.Errorf("storage_dataset_filesystem_already_in_use")
+				// return fmt.Errorf("storage_dataset_filesystem_already_in_use")
+				// check if mountpoint + "<vmid>.img" exists
+				var dataset *zfs.Dataset
+				filesystems, err := zfs.Filesystems("")
+
+				if err != nil {
+					return fmt.Errorf("failed_to_get_filesystems: %w", err)
+				}
+
+				for _, fs := range filesystems {
+					if fs.GUID == data.StorageDataset {
+						dataset = fs
+						break
+					}
+				}
+
+				if dataset == nil {
+					return fmt.Errorf("dataset_not_found")
+				}
+
+				if dataset.Mountpoint == "" {
+					return fmt.Errorf("raw_storage_dataset_must_have_mountpoint")
+				}
+
+				datasetPath := filepath.Join(dataset.Mountpoint, fmt.Sprintf("%d.img", *data.VMID))
+				exists, err := utils.FileExists(datasetPath)
+				if err != nil {
+					return fmt.Errorf("failed_to_check_if_raw_storage_file_exists: %w", err)
+				}
+
+				if exists {
+					return fmt.Errorf("storage_dataset_filesystem_already_has_image_file: %s", datasetPath)
+				}
 			}
 		}
 
