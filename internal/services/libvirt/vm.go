@@ -656,10 +656,11 @@ func (s *Service) RemoveVM(id uint, cleanUpMacs bool) error {
 			}
 
 			datasetPath := filepath.Join(dataset.Mountpoint)
-			err := utils.RemoveDirContents(datasetPath)
+			filePath := filepath.Join(datasetPath, fmt.Sprintf("%d.img", vm.VmID))
+			err := utils.DeleteFile(filePath)
 
 			if err != nil {
-				return fmt.Errorf("failed_to_remove_raw_storage_files: %w", err)
+				return fmt.Errorf("failed_to_remove_raw_storage_file: %w", err)
 			}
 		}
 
