@@ -94,7 +94,9 @@
 
 	let modalState = $state({
 		isDeleteOpen: false,
-		deleteMACs: false,
+		deleteMACs: true,
+		deleteRAWDisks: false,
+		deleteVolumes: false,
 		title: '',
 		loading: {
 			open: false,
@@ -111,7 +113,12 @@
 		modalState.loading.description = `Please wait while VM <b>${vm.name} (${vm.vmId})</b> is being deleted`;
 
 		await sleep(1000);
-		const result = await deleteVM(vm.id, modalState.deleteMACs);
+		const result = await deleteVM(
+			vm.id,
+			modalState.deleteMACs,
+			modalState.deleteRAWDisks,
+			modalState.deleteVolumes
+		);
 		modalState.loading.open = false;
 		reload.leftPanel = true;
 
@@ -388,11 +395,25 @@
 				{`This will permanently delete VM`}
 				<span class="font-semibold">{modalState?.title}.</span>
 
-				<CustomCheckbox
-					label="Delete MAC Object(s)"
-					bind:checked={modalState.deleteMACs}
-					classes="flex items-center gap-2 mt-4"
-				></CustomCheckbox>
+				<div class="flex flex-row space-x-4">
+					<CustomCheckbox
+						label="Delete MAC Object(s)"
+						bind:checked={modalState.deleteMACs}
+						classes="flex items-center gap-2 mt-4"
+					></CustomCheckbox>
+
+					<CustomCheckbox
+						label="Delete RAW Disk(s)"
+						bind:checked={modalState.deleteRAWDisks}
+						classes="flex items-center gap-2 mt-4"
+					></CustomCheckbox>
+
+					<CustomCheckbox
+						label="Delete Volume(s)"
+						bind:checked={modalState.deleteVolumes}
+						classes="flex items-center gap-2 mt-4"
+					></CustomCheckbox>
+				</div>
 			</AlertDialogRaw.Description>
 		</AlertDialogRaw.Header>
 		<AlertDialogRaw.Footer>
