@@ -510,12 +510,12 @@ func (s *Service) EditObject(id uint, name string, oType string, values []string
 
 				hasChange := false
 
-				object.Name = name
-				object.Type = oType
-
 				if object.Name != name || object.Type != oType {
 					hasChange = true
 				}
+
+				object.Name = name
+				object.Type = oType
 
 				for _, value := range values {
 					for _, entry := range object.Entries {
