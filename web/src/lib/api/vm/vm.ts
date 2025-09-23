@@ -52,8 +52,17 @@ export async function newVM(data: CreateData): Promise<APIResponse> {
 	});
 }
 
-export async function deleteVM(id: number, deleteMacs: boolean): Promise<APIResponse> {
-	return await apiRequest(`/vm/${id}?deletemacs=${deleteMacs}`, APIResponseSchema, 'DELETE');
+export async function deleteVM(
+	id: number,
+	deleteMacs: boolean,
+	deleteRawDisks: boolean,
+	deleteVolumes: boolean
+): Promise<APIResponse> {
+	return await apiRequest(
+		`/vm/${id}?deletemacs=${deleteMacs}&deleterawdisks=${deleteRawDisks}&deletevolumes=${deleteVolumes}`,
+		APIResponseSchema,
+		'DELETE'
+	);
 }
 
 export async function getVMDomain(id: number | string): Promise<VMDomain> {

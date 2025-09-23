@@ -215,7 +215,51 @@ func RemoveVM(libvirtService *libvirt.Service) gin.HandlerFunc {
 			return
 		}
 
-		err = libvirtService.RemoveVM(uint(vmInt), deleteMacs)
+		deleteRawDisksStr := c.Query("deleterawdisks")
+		if deleteRawDisksStr == "" {
+			c.JSON(400, internal.APIResponse[any]{
+				Status:  "error",
+				Message: "missing_deleterawdisks_param",
+				Error:   "missing 'deleterawdisks' query parameter",
+				Data:    nil,
+			})
+			return
+		}
+
+		deleteRawDisks, err := strconv.ParseBool(deleteRawDisksStr)
+		if err != nil {
+			c.JSON(400, internal.APIResponse[any]{
+				Status:  "error",
+				Message: "invalid_deleterawdisks_param",
+				Error:   "invalid 'deleterawdisks' value: " + err.Error(),
+				Data:    nil,
+			})
+			return
+		}
+
+		deleteVolumesStr := c.Query("deletevolumes")
+		if deleteVolumesStr == "" {
+			c.JSON(400, internal.APIResponse[any]{
+				Status:  "error",
+				Message: "missing_deletevolumes_param",
+				Error:   "missing 'deletevolumes' query parameter",
+				Data:    nil,
+			})
+			return
+		}
+
+		deleteVolumes, err := strconv.ParseBool(deleteVolumesStr)
+		if err != nil {
+			c.JSON(400, internal.APIResponse[any]{
+				Status:  "error",
+				Message: "invalid_deletevolumes_param",
+				Error:   "invalid 'deletevolumes' value: " + err.Error(),
+				Data:    nil,
+			})
+			return
+		}
+
+		err = libvirtService.RemoveVM(uint(vmInt), deleteMacs, deleteRawDisks, deleteVolumes)
 
 		if err != nil {
 			c.JSON(500, internal.APIResponse[any]{

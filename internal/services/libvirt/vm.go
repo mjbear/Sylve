@@ -92,6 +92,15 @@ func validateCreate(data libvirtServiceInterfaces.CreateVMRequest, db *gorm.DB) 
 		return fmt.Errorf("invalid_vm_id")
 	}
 
+	count, err := sdb.Count(db, &vmModels.VM{}, "vm_id = ?", *data.VMID)
+	if err != nil {
+		return fmt.Errorf("failed_to_check_vmid_usage: %w", err)
+	}
+
+	if count > 0 {
+		return fmt.Errorf("vm_id_already_in_use")
+	}
+
 	if data.Description != "" && (len(data.Description) < 1 || len(data.Description) > 1024) {
 		return fmt.Errorf("invalid_description")
 	}
@@ -122,7 +131,39 @@ func validateCreate(data libvirtServiceInterfaces.CreateVMRequest, db *gorm.DB) 
 			if data.StorageType == "zvol" {
 				return fmt.Errorf("storage_dataset_zvol_already_in_use")
 			} else if data.StorageType == "raw" {
-				return fmt.Errorf("storage_dataset_filesystem_already_in_use")
+				// return fmt.Errorf("storage_dataset_filesystem_already_in_use")
+				// check if mountpoint + "<vmid>.img" exists
+				var dataset *zfs.Dataset
+				filesystems, err := zfs.Filesystems("")
+
+				if err != nil {
+					return fmt.Errorf("failed_to_get_filesystems: %w", err)
+				}
+
+				for _, fs := range filesystems {
+					if fs.GUID == data.StorageDataset {
+						dataset = fs
+						break
+					}
+				}
+
+				if dataset == nil {
+					return fmt.Errorf("dataset_not_found")
+				}
+
+				if dataset.Mountpoint == "" {
+					return fmt.Errorf("raw_storage_dataset_must_have_mountpoint")
+				}
+
+				datasetPath := filepath.Join(dataset.Mountpoint, fmt.Sprintf("%d.img", *data.VMID))
+				exists, err := utils.FileExists(datasetPath)
+				if err != nil {
+					return fmt.Errorf("failed_to_check_if_raw_storage_file_exists: %w", err)
+				}
+
+				if exists {
+					return fmt.Errorf("storage_dataset_filesystem_already_has_image_file: %s", datasetPath)
+				}
 			}
 		}
 
@@ -581,13 +622,18 @@ func (s *Service) CreateVM(data libvirtServiceInterfaces.CreateVMRequest) error 
 	return nil
 }
 
-func (s *Service) RemoveVM(id uint, cleanUpMacs bool) error {
+func (s *Service) RemoveVM(id uint, cleanUpMacs bool, deleteRawDisks bool, deleteVolumes bool) error {
 	var vm vmModels.VM
 	if err := s.DB.Preload("Stats").Preload("Networks").Preload("Storages").First(&vm, "id = ?", id).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return fmt.Errorf("vm_not_found: %d", id)
 		}
 		return fmt.Errorf("failed_to_find_vm: %w", err)
+	}
+
+	volumes, err := zfs.Volumes("")
+	if err != nil {
+		return fmt.Errorf("failed_to_get_volumes: %w", err)
 	}
 
 	filesystems, err := zfs.Filesystems("")
@@ -597,7 +643,7 @@ func (s *Service) RemoveVM(id uint, cleanUpMacs bool) error {
 	}
 
 	for _, storage := range vm.Storages {
-		if storage.Type == "raw" {
+		if storage.Type == "raw" && deleteRawDisks {
 			var dataset *zfs.Dataset
 			for _, fs := range filesystems {
 				if fs.GUID == storage.Dataset {
@@ -615,13 +661,47 @@ func (s *Service) RemoveVM(id uint, cleanUpMacs bool) error {
 			}
 
 			datasetPath := filepath.Join(dataset.Mountpoint)
-			err := utils.RemoveDirContents(datasetPath)
+			filePath := filepath.Join(datasetPath, fmt.Sprintf("%s.img", storage.Name))
+
+			exists, err := utils.FileExists(filePath)
+			if err != nil {
+				logger.L.Error().Err(err).Msg("RemoveVM: failed to check if raw storage file exists")
+				continue
+			}
+
+			if !exists {
+				logger.L.Warn().Msgf("RemoveVM: raw storage file does not exist: %s", filePath)
+				continue
+			}
+
+			err = utils.DeleteFile(filePath)
 
 			if err != nil {
-				return fmt.Errorf("failed_to_remove_raw_storage_files: %w", err)
+				return fmt.Errorf("failed_to_remove_raw_storage_file: %w", err)
 			}
 		}
 
+		if storage.Type == "zvol" && deleteVolumes {
+			var volume *zfs.Dataset
+			for _, vol := range volumes {
+				if vol.GUID == storage.Dataset {
+					volume = vol
+					break
+				}
+			}
+
+			if volume == nil {
+				return fmt.Errorf("volume_not_found")
+			}
+
+			err := volume.Destroy(zfs.DestroyRecursive)
+			if err != nil {
+				return fmt.Errorf("failed_to_destroy_zvol: %w", err)
+			}
+		}
+	}
+
+	for _, storage := range vm.Storages {
 		if err := s.DB.Delete(&storage).Error; err != nil {
 			return fmt.Errorf("failed_to_delete_storage: %w", err)
 		}
