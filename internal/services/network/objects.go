@@ -494,8 +494,8 @@ func (s *Service) EditObject(id uint, name string, oType string, values []string
 				Preload("Network6Obj.Entries").
 				Preload("GatewayAddressObj.Entries").
 				Preload("Gateway6AddressObj.Entries").
-				Find(&switches).
-				Where("gateway_address_object_id = ? OR gateway6_address_object_id = ?", id, id).Error; err != nil {
+				Where("gateway_address_object_id = ? OR gateway6_address_object_id = ?", id, id).
+				Find(&switches).Error; err != nil {
 				return fmt.Errorf("failed to find standard switches using object %d: %w", id, err)
 			}
 
@@ -576,8 +576,8 @@ func (s *Service) EditObject(id uint, name string, oType string, values []string
 				Preload("Network6Obj.Entries").
 				Preload("GatewayAddressObj.Entries").
 				Preload("Gateway6AddressObj.Entries").
-				Find(&switches).
-				Where("networkId = ? OR network6Id = ?", id, id).Error; err != nil {
+				Where("network_object_id = ? OR network6_object_id = ?", id, id).
+				Find(&switches).Error; err != nil {
 				return fmt.Errorf("failed to find standard switches using object %d: %w", id, err)
 			}
 
@@ -592,12 +592,12 @@ func (s *Service) EditObject(id uint, name string, oType string, values []string
 
 				hasChange := false
 
-				object.Name = name
-				object.Type = oType
-
 				if object.Name != name || object.Type != oType {
 					hasChange = true
 				}
+
+				object.Name = name
+				object.Type = oType
 
 				for _, value := range values {
 					for _, entry := range object.Entries {
